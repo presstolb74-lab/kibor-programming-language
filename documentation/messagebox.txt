@@ -1,0 +1,19 @@
+﻿НАЗВАНИЕ: messagebox
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=139&postid=1585309974#1585309974
+
+Вывод сообщений во время выполнения скрипта.
+Сообщения выводятся на экран в диалоговом окне с одной кнопкой функцией messagebox.
+В виде параметров принимаются все типы переменных кроме win
+CODE:
+string str="Это";
+char ch='!';
+messagebox(str+" сообщение"+ch);
+Или:
+CODE:
+int a=5;
+double b=1.57;
+messagebox(a+b);
+Или:
+CODE:
+messagebox(senddisplay(32, 1024, 768));
+Kibor

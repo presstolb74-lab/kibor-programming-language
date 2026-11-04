@@ -1,0 +1,27 @@
+﻿НАЗВАНИЕ: freelibrary
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=74&postid=1597772795#1597772795
+
+Добавлена функция freelibrary.
+Ее назначение выгрузка подключенной ранее DLL с помощью external
+Внимание! Выгрузка определенного DLL приведет к недоступности всех функций загруженных с DLL с этим именем, пока она опять не будут подключены с помощью external
+Синтаксис:
+CODE:
+int hModule=external(INT, "ShellExecute", "ShellExecuteA", "Shell32.dll");//Загрузили
+freelibrary(hModule);//Выгрузили.
+Пример недоступности выгруженной DLL
+CODE:
+int hModule=external(INT, "ShellExecute", "ShellExecuteA", "Shell32.dll");
+ShellExecute(0, "Open", "http:/^/kibor-bot.com/education-kibor.php", 0, "", 61728);
+freelibrary(hModule);//Выгрузили.
+messagebox("Тут функция ShellExecute не доступна будет, как и все функции с этой DLL подключенные ранее.");
+ShellExecute(0, "Open", "http:/^/kibor-bot.com/education-kibor.php", 0, "", 61728);
+Тут пример выгрузки и повторной загрузки. Ошибок нет.
+CODE:
+int hModule=external(INT, "ShellExecute", "ShellExecuteA", "Shell32.dll");
+ShellExecute(0, "Open", "http:/^/kibor-bot.com/education-kibor.php", 0, "", 61728);
+freelibrary(hModule);//Выгрузили.
+messagebox("Опять загрузим.");
+hModule=external(INT, "ShellExecute", "ShellExecuteA", "Shell32.dll");
+ShellExecute(0, "Open", "http:/^/kibor-bot.com/education-kibor.php", 0, "", 61728);
+freelibrary(hModule);//Выгрузили.
+Asmond

@@ -1,0 +1,112 @@
+﻿НАЗВАНИЕ: kiborcode
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=188
+
+Многопроцессорность Python. Запуск нескольких процессов Python, работающих одновременно и незавивисимо друг от друга
+Оператор kiborcode позволяет встраивать исполняемый код Кибор непосредственно в код Python в блоках __python_sync и __python
+Использовать Кибор переменные и функции в коде Python.
+Примеры:
+Передача значения переменной Кибор в код Python
+CODE:
+string Rez_Cut_Text="После";
+enableconsolepython(1, 1, 50, 50, 400, 600);
+if (runpython()==1)
+{
+__python_sync
+Rez_Cut_Text='Текст до'
+print (Rez_Cut_Text)
+Rez_Cut_Text='kiborcode (Rez_Cut_Text)'
+print (Rez_Cut_Text)
+__end_python
+messagebox ("");
+closepython();
+}
+Перед Кибор кодом надо указывать оператор kiborcode
+Если используется одна Кибор переменная, можно ее не брать в круглые скобки:
+CODE:
+enableconsolepython(1, 1, 0, 0, 500, 768);
+if (runpython())
+{
+int A=5;
+__python_sync
+print (kiborcode A)
+__end_python
+messagebox("Закрыть");
+closepython();
+}
+При использование сложного кода, надо его взять в круглые скобки.
+В данном примере переменные A и B Кибора, а переменная C Python:
+CODE:
+int A=5;
+int B=5;
+__python_sync
+C=7
+print (kiborcode (A+5-B)+C)
+__end_python
+Вызов функций:
+CODE:
+int A=5;
+int B=5;
+__python_sync
+C=7
+print (kiborcode (A+fun(B+5)+rand(5, 500))+C)
+__end_python
+function fun(int q)
+{
+return q+2;
+}
+Код Кибор внедренный в код Python имеет подсветку Кибора.
+При использование спец и экранирующего символа в коде Кибор необходимо придерживаться правил Кибор.
+kiborcode сам преобразуем экранирующий и спецсимволы к коду Python.
+Экранирующий и спец символы
+Пример:
+Допускается встравание оператора kiborcode непосредственно в текстовую строку Python, обрамленнню '' или ""
+CODE:
+string W="перенос^nстроки";
+__python_sync
+print ('Перенос\nстроки\nPython\n kiborcode (W+"^nКибор")')
+__end_python
+CODE:
+string W="перенос^nстроки";
+__python_sync
+print ('Перенос\nстроки\nPython\n'+'kiborcode (W+"^nКибор")')
+__end_python
+Подробное пояснение и демонстрация на видео
+При использование оператора kiborcode
+код с
+CODE:
+Python 3.8.5 (tags/v3.8.5:580fbb0, Jul 20 2020, 15:43:08) [MSC v.1926 32 bit (Intel)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> #Импорт
+>>> from selenium import webdriver
+>>> ex = r'1366'
+>>> ey = r'768'
+>>> exe_path = r'D:/Skript/RoboClicker/Release/python/webdriver/geckodriver.exe'
+>>> binary = r'C:/Program Files/Mozilla Firefox/firefox.exe'
+>>> exe_path = r'D:/Skript/RoboClicker/Release/python/webdriver/geckodriver.exe'
+>>> binary = r'C:/Program Files/Mozilla Firefox/firefox.exe'
+>>> web = webdriver.Firefox(executable_path = exe_path, firefox_binary = binary)
+>>> web.set_window_size(ex, ey)
+>>> Url = r'https://www.google.com'
+>>> Time = r'2'
+>>> try:
+...     web.set_page_load_timeout(Time)
+...     web.get(Url)
+... except TimeoutException as e:
+...     time.sleep(1)
+...
+>>>
+сокращается до
+CODE:
+Python 3.8.5 (tags/v3.8.5:580fbb0, Jul 20 2020, 15:43:08) [MSC v.1926 32 bit (Intel)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> #Импорт
+>>> from selenium import webdriver
+>>> web = webdriver.Firefox(executable_path = 'D:/Skript/RoboClicker/Release/python/webdriver/geckodriver.exe', firefox_binary = 'C:/Program Files/Mozilla Firefox/firefox.exe')
+>>> web.set_window_size(1366, 768)
+>>> try:
+...     web.set_page_load_timeout(2)
+...     web.get('https://www.google.com')
+... except TimeoutException as e:
+...     time.sleep(1)
+...
+>>>

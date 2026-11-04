@@ -1,0 +1,135 @@
+﻿НАЗВАНИЕ: readjson
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=143
+
+parserjson - Парсер JSON.
+Доступ к объектам JSON реализован таким образом:
+CODE:
+/*
+{
+"clientKey":"dce6bcbb1a728ea8d563de6d169a2057",
+"task":
+{
+"type":"ImageToTextTask",
+"body":"BASE64_BODY_HERE!",
+"phrase":false,
+"case":false,
+"numeric":0,
+"math":false,
+"minLength":0,
+"maxLength":0
+}
+}
+*/
+string Json="{^"clientKey^":^"" + "dce6bcbb1a728ea8d563de6d169a2057^"," +
+"^"task^":" +
+"{^"type^":^"ImageToTextTask^"," +
+"^"body^":^"BASE64_BODY_HERE!^"," +
+"^"phrase^":false," +
+"^"case^":false," +
+"^"numeric^":0," +
+"^"math^":false," +
+"^"minLength^":0," +
+"^"maxLength^":0}}";
+messagebox (Json);
+parserjson(Rez_Json, Json);//Создаем объект JSON с символьным именем Rez_Json и Парсим запись JSON с Json
+messagebox (Rez_Json.task.case);//Выводим значение объекта JSON
+Дополнительные функции:
+sizejson(Rez_Json);
+Возвращает количество всех пар КЛЮЧ - ЗНАЧЕНИЕ объекта Rez_Json.
+В виде параметра принимает объект JSON, созданный при парсинге JSON формата.
+Пример:
+CODE:
+string Json="{^r^n"+
+"^"playerstats^": {^r^n"+
+"^"steamID^": ^"76561198050187807^",^r^n"+
+"^"gameName^": ^"ValveTestApp260^",^r^n"+
+"^"stats^": [^r^n"+
+"{^r^n"+
+"^"name^": ^"total_kills^",^r^n"+
+"^"value^": 35179^r^n"+
+"},^r^n"+
+"{^r^n"+
+"^"name^": ^"total_deaths^",^r^n"+
+"^"value^": 30241^r^n"+
+"},^r^n"+
+"{^r^n"+
+"^"name^": ^"total_time_played^",^r^n"+
+"^"value^": 2444377^r^n"+
+"}^r^n"+
+"]^r^n"+
+"}^r^n"+
+"}";
+messagebox (Json);
+parserjson(Rez_Json, Json);
+messagebox (sizejson(Rez_Json));//Вернет 8
+============================================
+readjson (Rez_Json, #Key[0], #Value[0]);
+Считывает все пары КЛЮЧ - ЗНАЧЕНИЕ в массивы string
+Первый параметр - Объект JSON
+Второй - Указатель на массив string в который запишутся ключи.
+Третий - Указатель на массив string в который запишутся значения.
+Возвращает количество считанных пар.
+В случае ошибки возвращает число менее 0
+Пример:
+CODE:
+string Json="{^r^n"+
+"^"playerstats^": {^r^n"+
+"^"steamID^": ^"76561198050187807^",^r^n"+
+"^"gameName^": ^"ValveTestApp260^",^r^n"+
+"^"stats^": [^r^n"+
+"{^r^n"+
+"^"name^": ^"total_kills^",^r^n"+
+"^"value^": 35179^r^n"+
+"},^r^n"+
+"{^r^n"+
+"^"name^": ^"total_deaths^",^r^n"+
+"^"value^": 30241^r^n"+
+"},^r^n"+
+"{^r^n"+
+"^"name^": ^"total_time_played^",^r^n"+
+"^"value^": 2444377^r^n"+
+"}^r^n"+
+"]^r^n"+
+"}^r^n"+
+"}";
+messagebox (Json);
+parserjson(Rez_Json, Json);
+int W=sizejson(Rez_Json);
+new string Key[W];
+new string Value[W];
+int E=readjson (Rez_Json, #Key[0], #Value[0]);
+for (int k=0; k<E; k++) messagebox (Key[k]+"  =  "+Value[k]);
+string S="";
+for (k=0; k<E; k++) S=S+Key[k]+" = "+Value[k]+"^r^n";
+messagebox (S);
+======================================================
+valuejson(Rez_Json, "playerstats.stats[1].name");
+Возвращает string в котором находится значение указанного ключа.
+Первый    параметр - Объект JSON
+Второй - string, в котором находится полный ключ, значение которого надо получить.
+В случае ошибки возвращает ERROR_SEARCH_JSON
+Пример:
+CODE:
+string Json="{^r^n"+
+"^"playerstats^": {^r^n"+
+"^"steamID^": ^"76561198050187807^",^r^n"+
+"^"gameName^": ^"ValveTestApp260^",^r^n"+
+"^"stats^": [^r^n"+
+"{^r^n"+
+"^"name^": ^"total_kills^",^r^n"+
+"^"value^": 35179^r^n"+
+"},^r^n"+
+"{^r^n"+
+"^"name^": ^"total_deaths^",^r^n"+
+"^"value^": 30241^r^n"+
+"},^r^n"+
+"{^r^n"+
+"^"name^": ^"total_time_played^",^r^n"+
+"^"value^": 2444377^r^n"+
+"}^r^n"+
+"]^r^n"+
+"}^r^n"+
+"}";
+messagebox (Json);
+parserjson(Rez_Json, Json);
+messagebox (valuejson(Rez_Json, "playerstats.stats[1].name"));

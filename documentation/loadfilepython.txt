@@ -1,0 +1,339 @@
+﻿НАЗВАНИЕ: loadfilepython
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=147
+
+Многопроцессорность Python. Запуск нескольких процессов Python, работающих одновременно и незавивисимо друг от друга
+Ознакомиться с оператором kiborcode. Оператор kiborcode позволяет встраивать исполняемый код Кибор непосредственно в код Python в блоках __python_sync и __python
+В этой версии появилась возможность выполнять в Кибор Python скрипты и обмениваться с Python данными.
+Скрипты можно запускать с файла или выполнять их по одной команде с помощью специальных функций Кибор.
+Так же можно выполнять Питон скрипты непосредственно в коде Кибор с помощью директив __python или  __python_sync и __end_python
+Цитата:
+__python_sync
+import time
+time.sleep(5)
+__end_python
+Для использования новых функций необходимо скачать программу с(для просмотра ссылки Вам необходимо авторизоваться) и заново ее перустановить. Лицензия при этом останется.
+Либо скачать этот архив и извлечь с него файлы и папки. Они должны быть по адресу
+папка_с_кибор/python/
+При выполнение Питоном инструкции input, выводится диалоговое окно.
+Описание новых функций:
+Цитата:
+runpython()
+или
+runpython(0)
+Запускает интерпретатор Питон.
+Может быть без параметров и с одним параметром.
+1 - всегда запускать новую копию Python. При остановке скрипта ее закрывать.
+0 - Проверять наличие запущенного Python и если он есть, не запускать новую копию. При остановке скрипта не закрывать Python.
+По умолчанию передается параметр 1
+Подробнее о параметре
+Возвращает 1 при удачном запуске
+0 при неудаче.
+Если в runpython указать один параметр ARRAY, будет запущен отдельный экземпляр Python для использование многопроцессорности.
+Подробнее: Многопроцессорность Python. Запуск нескольких процессов Python, работающих одновременно и незавивисимо друг от друга
+Цитата:
+closepython()
+Завершает работу с интерпретатором.
+Возвращает 1 если завершил работу.
+0 если интерпретатор не был запущен.
+Цитата:
+sendpython("print(^'yes^')");
+Отправляет Питону команду print('yes') и нажимает Ентер. Не синхронная. Не ждет окончания команды. Можно вводить не sendpython("print(^'yes^')");, а просто sendpython("print('yes')");
+Возвращает 1 при удаче.
+Цитата:
+getpython()
+Считывает последний ответ с Питона.
+Возвращает string.
+То есть если перед этим мы отправили print('yes'), то прочитаем yes
+Данная функция может считать ответ только один раз. При повторных попытках считывания или если Питон не готов выдать ответ (выполняет какую то задачу) эта функция вернет ERROR_READ_PYTHON
+Цитата:
+sendgetpython("print(^'yes^')");
+Посылает Питону print('yes') и сразу же получает ответ. Возвращает string. В данном случае yes.. Синхронная. После отправки ждет отработки кода и получения ответа.
+Синхронность работы не распространяется на вызов Питон функций.
+Цитата:
+runfilepython ("C:\Program Files (x86)\Kibor\script.txt")
+Считывает скрипт Питона с файла и выполняет его. Ответ, если есть необходимость надо получать так же как и в случае sendpython функцией getpython
+В файле допускаются функции и их вызов.
+Перевод срока в файле является Ентером.
+Цитата:
+loadfilepython(#sp[0], "C:\Program Files (x86)\Kibor\script.txt")
+Загружает скрипт Питона с файла в массив string, на который надо дать указатель первым параметром. Перед загрузкой чистит скрипт от комментариев, пробелов и переносов строк перед скриптом.
+Возвращает количество загруженных строк. Перевод стоки считается Ентером.
+Затем можно выполнить эти строки синхронно или асинхронно соответствующими функциями.
+================================================================
+Скрипты Питона выполняются в отдельном потоке. Поэтому за синхронизацией надо следить самому. Как синхронизировать я скажу ниже.
+Примеры скриптов:
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+sendpython("print(^'Kibor^')");//Отправили
+messagebox (getpython());//Получили
+closepython();//Завершили работу с интерпретатором
+}
+...................
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+messagebox (sendgetpython("print(^'Kibor^')"));//Отправили и Получили
+closepython();//Завершили работу с интерпретатором
+}
+...................
+Пример выполнения цикла:
+CODE:
+for number in range(50):
+print(number)
+Необходимо в конце ставить ^n
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+messagebox (sendgetpython("for number in range(50):^n    print(number)^n"));//Отправили
+closepython();//Завершили работу с интерпретатором
+}
+...................
+Пример синхронизации:
+Есть пример, в Питоне выдержать паузу 5 секунд, потом напечатать слово Text и получить его в виде ответа.
+Пример ниже не выполнит эту задачу, потому что messagebox (getpython()); не будет ждать пока Питон закончит паузу и прочитает ответ который пришел от sendpython("time.sleep(5)");
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+sendpython("import time");//Отправили
+sendpython("time.sleep(5)");//Отправили паузу в 5 секунд
+sendpython("print(^'Text^')");//Отправили
+messagebox (getpython());//Получили, но не то что ожидали
+closepython();//Завершили работу с интерпретатором
+}
+Как правильно синхронизировать
+Для этого отправляем команды синхронной функцией sendgetpython
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+sendgetpython("import time");//Отправили
+sendgetpython("time.sleep(5)");//Отправили паузу в 5 секунд
+sendpython("print(^'Text^')");//Продолжаем работу
+messagebox (getpython());//Получили то что ожидали
+closepython();//Завершили работу с интерпретатором
+}
+Функция sendgetpython считывает ответ после выполнения кода Питона.
+Если в этой функции ожидается вывод результата print, который надо получить, то его следует получать сразу в этой функции:
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+sendgetpython("import time");//Отправили
+sendgetpython("time.sleep(5)");//Отправили паузу в 5 секунд
+messagebox (sendgetpython("print(^'Text^')"));//Продолжаем работу и получаем ответ
+closepython();//Завершили работу с интерпретатором
+}
+Иначе если мы сразу не получили от sendgetpython ответ, на следующий вызов getpython мы получим ERROR_READ_PYTHON
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+sendgetpython("import time");//Отправили
+sendgetpython("time.sleep(5)");//Отправили паузу в 5 секунд
+sendgetpython("print(^'Text^')");//Продолжаем работу
+messagebox (getpython());//Получили ERROR_READ_PYTHON
+closepython();//Завершили работу с интерпретатором
+}
+Можно так синхронизировать. Так надо синхронизировать выполнение функций Питона. Пример будет ниже.
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+sendpython("import time");//Отправили
+sendpython("time.sleep(1)");//Отправили паузу в 5 секунд
+sendpython("print(^'yes^')");//После окончания выполнения кода Питона посылаем сообщение что задачу закончили
+while (getpython()!="yes")sleep(10);// Ждем в цикле это сообщение
+sendpython("print(^'Text^')");//Продолжаем работу
+messagebox (getpython());//Получили то что ожидали
+closepython();//Завершили работу с интерпретатором
+}
+...................
+Пример выполнения скрипта с файла.
+В файле могут быть как функции, так их вызов и отдельные инструкции.
+Функции с фала можно вызывать как в самом файле, так и потом с помощью команд Кибор.
+К примеру есть такой скрипт:
+CODE:
+import time
+def foo():
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+web = webdriver.Firefox(executable_path=r'C:\Program Files (x86)\Kibor\python\webdriver\geckodriver.exe', firefox_binary=r'C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
+web.get('https://www.google.com')
+time.sleep(1);
+element = web.find_element_by_name('q')
+element.send_keys("Kibor")
+time.sleep(1);
+element.send_keys(Keys.ENTER)
+time.sleep(3);
+web.find_element_by_partial_link_text("kibor-bot.com").click()
+print('yes')
+foo()
+Он содержит функцию и ее вызов. Данная функция требует время на выполнение, так как она запускает браузер и производит с ним кое какие действия.
+Эта функция будет одновременно вызвана при обработке функцией runfilepython, поскольку в скрипте есть вызов foo()
+Для синхронизации в конце функции foo содержится команда вывести слово означающее конец работы функции.
+Синхронизированный код Кибор:
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+if (runfilepython ("C:\Program Files (x86)\Kibor\script.txt"))//Прочитали скрипт с файла и выполняем его, если там есть что то кроме функций
+{
+while (getpython()!="yes")sleep(100);// Ждем в цикле это сообщение
+}
+messagebox ("Продолжаем дальше");
+closepython();//Завершили работу с интерпретатором
+}
+...................
+Или такой скрипт. Функцию foo будем вызывать по необходимости с Кибор:
+CODE:
+import time
+def foo():
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+web = webdriver.Firefox(executable_path=r'C:\Program Files (x86)\Kibor\python\webdriver\geckodriver.exe', firefox_binary=r'C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
+web.get('https://www.google.com')
+time.sleep(1);
+element = web.find_element_by_name('q')
+element.send_keys("Kibor")
+time.sleep(1);
+element.send_keys(Keys.ENTER)
+time.sleep(3);
+web.find_element_by_partial_link_text("kibor-bot.com").click()
+print('yes')
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+if (runfilepython ("C:\Program Files (x86)\Kibor\script.txt"))//Прочитали скрипт с файла и выполняем его, если там есть что то кроме функций
+{
+sendpython("foo()");//Вызвали функцию в Питоне
+while (getpython()!="yes")sleep(10);// Ждем в цикле это сообщение
+}
+messagebox ("Продолжаем дальше");
+closepython();//Завершили работу с интерпретатором
+}
+...................
+А можем не синхронизировать. Пусть себе скрипт Питона работает, а мы этим временем будем делать свои дела, периодически проверяя или Питон закончил свою работу:
+Скрипт Питона
+CODE:
+import time
+def foo():
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+web = webdriver.Firefox(executable_path=r'C:\Program Files (x86)\Kibor\python\webdriver\geckodriver.exe', firefox_binary=r'C:\Program Files (x86)\Mozilla Firefox\firefox.exe')
+web.get('https://www.google.com')
+time.sleep(1);
+element = web.find_element_by_name('q')
+element.send_keys("Kibor")
+time.sleep(1);
+element.send_keys(Keys.ENTER)
+time.sleep(3);
+web.find_element_by_partial_link_text("kibor-bot.com").click()
+print('yes')
+CODE:
+if (runpython())//Запустили интерпретатор
+{
+if (runfilepython ("C:\Program Files (x86)\Kibor\script.txt"))//Прочитали скрипт с файла и выполняем его, если там есть что то кроме функций
+sendpython("foo()");//Вызвали функцию в Питоне
+}
+int a=0;
+loop()
+{
+messagebox (a);
+a++;
+sleep(500);
+if (getpython()=="yes")break;
+}
+messagebox ("Продолжаем дальше");
+closepython();//Завершили работу с интерпретатором
+Или
+CODE:
+enabletimer(0);
+if (runpython())//Запустили интерпретатор
+{
+if (runfilepython ("C:\Program Files (x86)\Kibor\script.txt"))//Прочитали скрипт с файла и выполняем его, если там есть что то кроме функций
+sendpython("foo()");//Вызвали функцию в Питоне
+}
+int a=0;
+loop()
+{
+messagebox (a);
+a++;
+sleep(500);
+}
+d:;
+messagebox ("Продолжаем дальше");
+closepython();//Завершили работу с интерпретатором
+CREATE_TIMER(0, 500)
+{
+if (getpython()=="yes")goto d;;
+}
+...................
+Пример loadfilepython
+Файл с скриптом Питона
+CODE:
+import time
+print(x+y)
+time.sleep(1);
+time.sleep(1);
+print(x*y)
+time.sleep(2);
+print('yes')
+Синхронная работа:
+CODE:
+//Посточное выполнение с выводом результата каждой строки
+string sp[1000];
+int k;
+if (runpython())//Запустили интерпретатор
+{
+sendpython("x=5");//Присваиваем переменныв в Питоне значения
+sendpython("y=22");//Присваиваем переменныв в Питоне значения
+k=loadfilepython (#sp[0], "C:\Program Files (x86)\Kibor\script.txt");//Прочитали скрипт с файла
+for (int n=0; n<k; n++)
+{
+messagebox (sp[n]+"^r^n---------------^r^n"+sendgetpython(sp[n]));//Выполняем посточно синхронизировано скрипт и выводим результат
+}
+closepython();//Завершили работу с интерпретатором
+}
+Еще
+CODE:
+//Посточное выполнение без вывода результата, но синхрнизировано
+string sp[1000];
+int k;
+string s="", t="";
+if (runpython())//Запустили интерпретатор
+{
+sendpython("x=5");//Присваиваем переменныв в Питоне значения
+sendpython("y=22");//Присваиваем переменныв в Питоне значения
+k=loadfilepython (#sp[0], "C:\Program Files (x86)\Kibor\script.txt");//Прочитали скрипт с файла
+for (int n=0; n<k; n++)
+{
+t=sendgetpython(sp[n]);//Выполняем посточно синхронизировано скрипт
+if (t!="ERROR_READ_PYTHON")s=s+t+"^r^n";
+}
+messagebox (s);//Выполняем посточно синхронизировано скрипт и выводим результат
+closepython();//Завершили работу с интерпретатором
+}
+Асинхронная
+CODE:
+//Асинхронное посточное выполнение с проверкой переодически или завершена работа
+string sp[1000];
+int k;
+string s="", t;
+if (runpython())//Запустили интерпретатор
+{
+sendpython("x=5");//Присваиваем переменныв в Питоне значения
+sendpython("y=22");//Присваиваем переменныв в Питоне значения
+k=loadfilepython (#sp[0], "C:\Program Files (x86)\Kibor\script.txt");//Прочитали скрипт с файла
+for (int n=0; n<k; n++)sendpython(sp[n]);//Загрузка скрипта посточно
+loop()//Рабочий цикл
+{
+//Что то делаем
+//.....................
+beep(1000, 200);
+//.....................
+//Периодически собираем информацию о работе и проверяем или не пришел ответ о окончание работы
+s=s+getpython();
+regexreplace(-1, #s, s, "ERROR_READ_PYTHON", "^n");
+while(regexreplace(-1, #s, s, "^n^n", "^n")){}
+if (regexsearch(1, #t, s, "yes")) break;
+sleep(500);
+}
+messagebox (s);//Выполняем посточно синхронизировано скрипт и выводим результат
+closepython();//Завершили работу с интерпретатором
+}

@@ -1,0 +1,97 @@
+﻿НАЗВАНИЕ: hiword
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=127&postid=1549056675#1549056675
+
+Добавил функции
+loword и hiword, что бы не надо было их вычислять таким образом:
+CODE:
+int cis=4294967290;
+int a=address(#cis);
+char c[4];
+int b=address(#c[0]);
+char c1[4];
+int b1=address(#c1[0]);
+c[0]=addressc(a);
+c[1]=addressc(a+1);
+c[2]=0;
+c[3]=0;
+c1[0]=addressc(a+2);
+c1[1]=addressc(a+3);
+c1[2]=0;
+c1[3]=0;
+int p=addressi(b);
+int x=addressi(b1);
+messagebox (p);
+messagebox (x);
+С помощью этих функций это делается так:
+CODE:
+int cis=4294967290;
+int p=loword(cis);
+int x=hiword(cis);
+messagebox (p);
+messagebox (x);
+Пример создания и обработка ползунка и замена текста в static
+CODE:
+external(INT, "CreateWindow", "CreateWindowExA", "User32.dll" );
+external(INT, "SetScrollRange", "SetScrollRange", "User32.dll" );
+external(INT, "SetScrollPos", "SetScrollPos", "User32.dll" );
+external(INT, "SetWindowText", "SetWindowTextA", "User32.dll" );
+int b1, b2, s1, hText, hwnd;
+createdialog(0);
+showdialog(0, "Диалог",100, 100, 300, 300, 1, 1);
+win w=formatiw (hwnd);
+int min=0, max=100, pos=95;
+SetScrollRange(s1,2,min,max,1);
+SetScrollPos(s1,2,pos,1);
+Изменить_текст_и_прозрачность();
+loop()sleep(1);
+function Изменить_текст_и_прозрачность()
+{
+SetWindowText(hText, format(pos));
+transparency(pos, w);
+}
+function getmessage(0, WM_COMMAND)
+{
+if (message.lparam==b1)messagebox ("Первая кнопка");
+if (message.lparam==b2)messagebox ("Ворая кнопка");
+}
+function getmessage(0, WM_HSCROLL)
+{
+if (message.lparam==s1)
+{
+if (message.wparam==1 || message.wparam==3)//SB_LINERIGHT
+{
+pos=pos+10;
+if (pos>max)pos=max;
+SetScrollPos(s1,2,pos,1);
+Изменить_текст_и_прозрачность();
+return;
+}
+if (message.wparam==0 || message.wparam==2)//SB_LINELEFT
+{
+pos=pos-10;
+if (pos<min)pos=min;
+SetScrollPos(s1,2,pos,1);
+Изменить_текст_и_прозрачность();
+return;
+}
+///////////
+if (loword(message.wparam)==5)//Зажали и двигаем
+{
+pos=pos-(pos-hiword(message.wparam));
+if (pos>max)pos=max;
+if (pos<min)pos=min;
+SetScrollPos(s1,2,pos,1);
+Изменить_текст_и_прозрачность();
+}
+}
+}
+//
+function getmessage(0, WM_CREATE)//Создание кнопок
+{
+hwnd = gethwnd(0);
+b1=CreateWindow(0, "BUTTON", "Первая кнопка", 1342177280, 10, 10, 120, 30, hwnd, 0, 0, 0);
+b2=CreateWindow(0, "BUTTON", "Ворая кнопка", 1342177280, 10, 50, 120, 30, hwnd, 0, 0, 0);
+s1=CreateWindow(0, "scrollbar", 0, 1342177280, 10, 100, 200, 20, hwnd,  0, 0, 0);
+hText = CreateWindow(0, "STATIC", "",1342177280, 10, 150, 100, 15, hwnd, 0, 0, 0);
+}
+Dantes3000

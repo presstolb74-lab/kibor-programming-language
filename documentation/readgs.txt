@@ -1,0 +1,31 @@
+﻿НАЗВАНИЕ: readgs
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=186
+
+readgs Читает Гугл Таблицы.
+Создание и редактирование Гугл Таблиц в Кибор
+Синтаксис:
+Цитата:
+string Rez[27][200];//Двухмерный массив string, куда зпишутся данные с таблицы
+int X, Y;//Сюда запишется ширина и высота таблицы в столбцах и ячейках
+int r=readgs(#Rez[0][0], #X, #Y, "13PDsbdywGkshMVO2vH6-alPy4zuKwDrmFZocVsRCssw");
+//int r=readgs(#Rez[0][0], #X, #Y, "13PDsbdywGkshMVO2vH6-alPy4zuKwDrmFZocVsRCssw/export?format=csv&gid=0");
+messagebox (Rez[2][4]);//Выводим данные ячейки C5
+messagebox (X);
+messagebox (Y);
+Первый параметр - Указатель на двухмерный массив string, куда запишутся данные таблицы.
+Левая верхняя ячейка A1 будет [0][0]
+A2 будет [0][1]
+B1 будет [1][0]
+C2 будет [2][1]
+Второй - указатель на int в который запишется количество столбцов
+Третий - количество строк
+Четвертый - часть ссылки формата:
+Красным выделено что надо указывать с ссылки на таблицу
+Цитата:
+https://docs.google.com/spreadsheets/d/13PDsbdywGkshMVO2vH6-alPy4zuKwDrmFZocVsRCssw/edit#gid=0
+При этом будет прочитана вся таблица.
+Если надо прочитать отдельный лист указываем:
+Цитата:
+https://docs.google.com/spreadsheets/d/13PDsbdywGkshMVO2vH6-alPy4zuKwDrmFZocVsRCssw/export?format=csv&gid=0
+0 - Номер листа
+Возвращает 1 при удаче, менее 1 при ошибке.

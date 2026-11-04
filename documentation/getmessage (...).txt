@@ -1,0 +1,154 @@
+﻿НАЗВАНИЕ: getmessage (...)
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=166
+
+Доработка address. Можно получить указатель на зарегистрированную в коде Кибор функцию.
+Добавлен член структуры message функции getmessage
+структуры message.hwnd. В нем содержится HWND окна, к которому это сообщение относится.
+========================================================
+Появилась возможность создавать свои диалоговые окна с использованием WinApi в любом количестве и стиле.
+Сообщения полученные этими окнами обрабатываются функцией WindowProc и распределяются по Кибор функциях приема сообщений getmessage - Получение и обработка сообщений в немодальных окнах Кибор
+Для того что бы отлавливать сообщения полученные такими окнами, в функции getmessage  не надо указывать первым параметром номер диалога. Различные окна, созданные по разному можно комбинировать между собой.
+Пример:
+CODE:
+function getmessage(WM_LBUTTONDOWN)
+{
+if (message.hwnd==Win)//Если сообщение от окна
+{
+beep(1000, 100);
+}
+}
+function getmessage(WM_COMMAND)
+{
+if (message.lparam==b1)//Если кнопка
+{
+messagebox ("Кнопка");
+}
+}
+Данные функции принимают сообщения от всех созданных так окон. Разделить их можно с помощью сравнения структуры message.hwnd с HWND нужного окна.
+Пример создания одного окна и кнопки и отлова сообщений
+CODE:
+#define WS_MINIMIZEBOX 131072
+#define WS_MAXIMIZEBOX 65536
+#define WS_VISIBLE 268435456
+#define WS_CAPTION 12582912
+#define WS_SYSMENU 524288
+#define WS_CHILD 1073741824
+#define COLOR_APPWORKSPACE 12
+#define WM_LBUTTONDOWN 513
+#define WM_COMMAND 273
+#define WM_CREATE 1
+#define WM_LBUTTONDOWN 513
+external(INT, "RegisterClass", "RegisterClassA", "User32.dll" );
+external(INT, "CreateWindow", "CreateWindowExA", "User32.dll" );
+external(INT, "UnregisterClass", "UnregisterClassA", "User32.dll");
+////////////////////
+int b1;
+int WinProc=address("WindowProc");
+char Class[8]={'m', 'y', 'c', 'l', 'a', 's', 's', 0};
+int PWNDCLASS[10];//Структура WNDCLASS
+int CLASS=address(#PWNDCLASS[0]);//Указатель на структуру класа
+initialarray(#PWNDCLASS[0], 0);//Обнуляем структуру
+writeaddress(WinProc, address(#PWNDCLASS[1]));//Указываем адрес функции WindowProc
+writeaddress(COLOR_APPWORKSPACE, address(#PWNDCLASS[7]));//Указываем цвет диалога
+writeaddress(address(#Class[0]), address(#PWNDCLASS[9]));//Указываем указатель на название класа
+if (RegisterClass(CLASS)==0){messagebox("Не удалось зарегистрировать клас"); goto er;}
+int Win=CreateWindow(0, address(#Class[0]), "Основное окно",
+WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU,
+10, 10, 500, 500, 0, 0, 0, 0);
+/////////////////////
+loop()sleep(10);
+er:;
+//Тут можно создавать контролы для окна, поскольку оно одно и мы можем указать родительским окном для контролов message.hwnd
+function getmessage(WM_CREATE)
+{
+b1=CreateWindow(0, "BUTTON", "Кнопка", WS_VISIBLE | WS_CHILD, 10, 10, 200, 30, message.hwnd, 0, 0, 0);
+}
+function getmessage(WM_LBUTTONDOWN)
+{
+if (message.hwnd==Win)//Если сообщение от окна
+{
+beep(1000, 100);
+}
+}
+function getmessage(WM_COMMAND)
+{
+if (message.lparam==b1)//Если кнопка
+{
+messagebox ("Кнопка");
+}
+}
+function getmessage(WM_CLOSE)
+{
+UnregisterClass(address(#Class[0]), 0);
+goto global er;
+}
+Пример создания двух окон и одного дочерного в первом окне и кнопок в одном окне и в одном дочерном окне.
+CODE:
+#define WS_MINIMIZEBOX 131072
+#define WS_MAXIMIZEBOX 65536
+#define WS_VISIBLE 268435456
+#define WS_CAPTION 12582912
+#define WS_SYSMENU 524288
+#define WS_CHILD 1073741824
+#define COLOR_APPWORKSPACE 12
+#define WM_LBUTTONDOWN 513
+#define WM_COMMAND 273
+#define WM_CREATE 1
+#define WM_LBUTTONDOWN 513
+external(INT, "RegisterClass", "RegisterClassA", "User32.dll" );
+external(INT, "CreateWindow", "CreateWindowExA", "User32.dll" );
+external(INT, "UnregisterClass", "UnregisterClassA", "User32.dll");
+////////////////////
+int WinProc=address("WindowProc");
+char Class[8]={'m', 'y', 'c', 'l', 'a', 's', 's', 0};
+int PWNDCLASS[10];//Структура WNDCLASS
+int CLASS=address(#PWNDCLASS[0]);//Указатель на структуру класа
+initialarray(#PWNDCLASS[0], 0);//Обнуляем структуру
+writeaddress(WinProc, address(#PWNDCLASS[1]));//Указываем адрес функции WindowProc
+writeaddress(COLOR_APPWORKSPACE, address(#PWNDCLASS[7]));//Указываем цвет диалога
+writeaddress(address(#Class[0]), address(#PWNDCLASS[9]));//Указываем указатель на название класа
+if (RegisterClass(CLASS)==0){messagebox("Не удалось зарегистрировать клас"); goto er;}
+int Win=CreateWindow(0, address(#Class[0]), "Первое окно",
+WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU,
+10, 10, 500, 500, 0, 0, 0, 0);
+int Win_D=CreateWindow(0, address(#Class[0]), "Дочерное окно в окне",
+WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_CHILD,
+10, 50, 300, 200, Win, 0, 0, 0);
+//Кнопку создаем посде создания окна и получения на него HWND, а не в сообщение WM_CREATE, так как в том сообщение окно еще не записало в Win = HWND
+int b1=CreateWindow(0, "BUTTON", "Кнопка в доч окне", WS_VISIBLE | WS_CHILD, 10, 10, 200, 30, Win_D, 0, 0, 0);
+int Win2=CreateWindow(0, address(#Class[0]), "Второе окно",
+WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_VISIBLE | WS_CAPTION | WS_SYSMENU,
+515, 10, 500, 200, 0, 0, 0, 0);
+int b2=CreateWindow(0, "BUTTON", "Кнопка", WS_VISIBLE | WS_CHILD, 10, 10, 120, 30, Win2, 0, 0, 0);
+/////////////////////
+loop()sleep(10);
+er:;
+/*
+//Тут контролы не создаем, так как в переменные Win и Win2 HWND будут записаны только после отработки функций CreateWindow!
+function getmessage(WM_CREATE)
+{
+}
+*/
+function getmessage(WM_LBUTTONDOWN)
+{
+if (message.hwnd==Win2)//Если сообщение от второго окна
+{
+beep(1000, 100);
+}
+}
+function getmessage(WM_COMMAND)
+{
+if (message.lparam==b1)//Если кнопка в дочерном окне
+{
+messagebox ("Кнопка в доч окне");
+}
+if (message.lparam==b2)//Если кнопка во втором окне
+{
+messagebox ("Кнопка");
+}
+}
+function getmessage(WM_CLOSE)
+{
+UnregisterClass(address(#Class[0]), 0);
+if (message.hwnd==Win)goto global er;
+}

@@ -1,0 +1,32 @@
+﻿НАЗВАНИЕ: getlocaltime
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=19
+
+Функция getlocaltime позволяет получит локальные дату и время на компьютере.
+Синтаксис:
+CODE:
+int Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds;
+getlocaltime(Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds);
+messagebox(Minute);
+Выведет минуты.
+Пример часов в углу
+CODE:
+int Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds;
+textbkcolor(255, 65535);
+a: getlocaltime(Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds);
+textout(0, 10, 10, "Время: "+format(Hour)+" часов, "+format(Minute)+" минут, "+format(Second)+" секунд", 1);
+sleep(100);
+goto a;
+или более оптимальный
+CODE:
+int Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds;
+string time="", t_time="";
+textbkcolor(255, 65535);
+a: getlocaltime(Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds);
+time="Время: "+format(Hour)+" часов, "+format(Minute)+" минут, "+format(Second)+" секунд";
+if (time!=t_time)
+{
+textout(0, 10, 10, time, 1);
+t_time=time;
+}
+sleep(100);
+goto a;

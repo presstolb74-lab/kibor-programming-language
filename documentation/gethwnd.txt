@@ -1,0 +1,33 @@
+﻿НАЗВАНИЕ: gethwnd
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=127&postid=1549155609#1549155609
+
+Добавил функцию gethwnd
+Возвращает HWND созданного диалогового окна с помощью createdialog, для использования в WinApi.
+Преимущества получение HWND таким образом в том, что он получается в момент вызова сообщения WM_CREATE.
+В обработчике этого сообщения надо создавать все нужные контролы.
+Данную функцию можно вызывать и без создания обработчиков сообщений, сразу после createdialog. В этом случае не надо ждать создание окна и получение указателя с помощью window
+Синтаксис:
+CODE:
+gethwnd(0);
+Параметр - номер диалога (0 или 1 или 2)
+CODE:
+gethwnd();
+Или без параметра. Возвращает HWND главного окна.
+Пример использования и создание кнопки в обработчике WM_CREATE
+CODE:
+external(INT, "CreateWindow", "CreateWindowExA", "User32.dll" );
+int b;
+//////////
+createdialog(0);
+showdialog(0, "Диалог", 258, 234, 250, 300, 1, 1);
+//////////
+loop() sleep(10);//Убрать после теста
+function getmessage(0, WM_CREATE)
+{
+b=CreateWindow(0, "BUTTON", "Первая кнопка", 1342177280, 10, 10, 120, 30, gethwnd(0), 0, 0, 0);
+}
+function getmessage(0, WM_COMMAND)
+{
+if (message.lparam==b)messagebox ("Первая кнопка");
+}
+Kibor

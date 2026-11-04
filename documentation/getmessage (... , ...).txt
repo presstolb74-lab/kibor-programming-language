@@ -1,0 +1,134 @@
+﻿НАЗВАНИЕ: getmessage (... , ...)
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=127
+
+В этой версии доработка заключалась в реализации возможности создавать функции отвечающие за отлов различных сообщений. Так же появилась возможность создавать свои контролы любого типа и неограниченное количество.
+Еще создание окон. Рекомендуется создавать так:
+Создание любых своих диалоговых окно с помощью WinApi - Любые диалоговые окна на WinApi
+Добавлена функция getmessage
+Функции созданные с помощью данного оператора отлавливают все сообщения полученный немодальными диалоговыми окнами Кибор.
+Такие как WM_MOUSEMOVE, WM_MENUCOMMAND, WM_LBUTTONDOWN, WM_PAINT, WM_SIZE, WM_COMMAND и остальные другие.
+Это позволяет полноценно взаимодействовать с окном и создавать свои контролы, которых нет в окнах созданных с помощью функций Кибор.
+Синтаксис:
+Цитата:
+function getmessage(0, WM_LBUTTONDOWN)//Отлавливаем клик левой кнопки мыши
+{
+beep(2500, 100);
+}
+Функции getmessage вызывать не надо. Они сами вызываются при получение окном какого то сообщения. В данном случае эта функция сама вызовется если будет произведен клик левой кн мыши в немодальном диалоге Кибор. Для указания диалога в котором отлавливать сообщения и какое сообщение ловить в скобках указываем 2 параметра.
+Первый - номер диалога созданного с помощью Немодальные диалоговые окна
+Второй  - константа или числовое значение кокой нибудь константы, соответствующие типу сообщения на которое надо выполнять код в этой функции.
+При получение какого нибудь сообщения становится доступна структура:
+Цитата:
+message.x - координата мыши X
+message.y - координата мыши Y
+message.wparam - определяет дополнительную информацию о сообщении. Точное значение зависит от значения члена структуры message
+message.lparam - определяет дополнительную информацию о сообщении. Точное значение зависит от значения члена структуры message
+Более подробную информацию ищите в интернете по запросам примерно такого плана:
+Цитата:
+Как отловить клик мыши winapi
+Добавил функцию gethwnd
+Возвращает HWND созданного диалогового окна с помощью createdialog, для использования в WinApi.
+Преимущества получение HWND таким образом в том, что он получается в момент вызова сообщения WM_CREATE.
+В обработчике этого сообщения надо создавать все нужные контролы.
+Ниже приведен пример как с помощью данных функций определяется выбранный пункт меню созданный в немодальном диалоге Кибор, ловятся сообщения перемещения мыши над диалогом, клик левой кнопки мыши и обновление окна. Так же создаются 2 кнопки и всплывающее меню.
+CODE:
+external(INT, "CreateMenu", "CreateMenu", "User32.dll" );
+external(INT, "CreatePopupMenu", "CreatePopupMenu", "User32.dll" );
+external(INT, "AppendMenu", "AppendMenuA", "User32.dll" );
+external(INT, "SetMenuInfo", "SetMenuInfo", "User32.dll" );
+external(INT, "SetMenu", "SetMenu", "User32.dll" );
+external(INT, "CreateWindow", "CreateWindowExA", "User32.dll" );
+external(INT, "TrackPopupMenu", "TrackPopupMenu", "User32.dll" );
+//Сожание меню
+int MENUINFO[7]={28, 16, 134217728, 0, 0, 0, 0};
+int HMENU, HMENU2, HMENU3;
+HMENU2=CreatePopupMenu();
+AppendMenu(HMENU2, 16, 1, "Новый" );
+AppendMenu(HMENU2, 16, 2, "Открыть" );
+AppendMenu(HMENU2, 16, 3, "Сохранить" );
+AppendMenu(HMENU2, 16, 4, "Сохранить как" );
+HMENU3=CreatePopupMenu();
+AppendMenu(HMENU3, 16, 5, "Вырезать" );
+AppendMenu(HMENU3, 16, 6, "Копировать" );
+HMENU=CreateMenu();
+AppendMenu(HMENU, 16, HMENU2, "Файл" );
+AppendMenu(HMENU, 16, HMENU3, "Правка" );
+//Создание всплывающего меню
+int vHMENU, vHMENU2, result;
+vHMENU=CreatePopupMenu();
+AppendMenu(vHMENU, 0, 111, "MessageBox" );
+AppendMenu(vHMENU, 0, 222, "Findimage" );
+vHMENU2=CreatePopupMenu();
+AppendMenu(vHMENU2, 0, 333, "25" );
+AppendMenu(vHMENU2, 0, 444, "50" );
+AppendMenu(vHMENU2, 0, 555, "75" );
+AppendMenu(vHMENU2, 0, 666, "100" );
+AppendMenu(vHMENU, 16, vHMENU2, "Прозрачность" );
+int b1, b2;
+createdialog(0);
+showdialog(0, "Диалог",100, 100, 300, 300, 1, 1);
+while(window ("Диалог")==0)sleep(10);
+win w=window ("Диалог");
+loop()
+{
+w=window ("Диалог");
+textout(1, w.left, w.top, " Не обновляли ", 0);
+sleep(1);
+}
+function Простая_функция(int x, int y)//В ней пересчитаем на экранные координаты
+{
+textout(0, x+w.leftclient, y+w.topclient, " "+format(x)+" "+format(y), 1);
+}
+function getmessage(0, WM_MOUSEMOVE)//Отлавливаем перемещешие мыши над окном
+{
+Простая_функция(message.x, message.y);//Перейдем в другую функцию
+}
+function getmessage(0, WM_CREATE)//Создаем контролы при создание окна
+{
+int hwnd=gethwnd(0);
+SetMenuInfo(HMENU, address(#MENUINFO[0]));
+SetMenu(hwnd, HMENU);
+//Создание кнопок
+b1=CreateWindow(0, "BUTTON", "Первая кнопка", 1342177280, 10, 10, 120, 30, hwnd, 0, 0, 0);
+b2=CreateWindow(0, "BUTTON", "Ворая кнопка", 1342177280, 10, 50, 120, 30, hwnd, 0, 0, 0);
+}
+function getmessage(0, WM_COMMAND)
+{
+if (message.lparam==b1)messagebox ("Первая кнопка");
+if (message.lparam==b2)messagebox ("Ворая кнопка");
+}
+function getmessage(0, WM_MENUCOMMAND)//Отлавливаем клик по пункту меню
+{
+if (message.lparam==HMENU2)//идентификатор меню "Файл"
+{
+if (message.wparam==0)messagebox ("Новый");
+if (message.wparam==1)messagebox ("Открыть");
+if (message.wparam==2)messagebox ("Сохранить");
+if (message.wparam==3)messagebox ("Сохранить как");
+}
+if (message.lparam==HMENU3)//идентификатор меню "Правка"
+{
+if (message.wparam==0)messagebox ("Вырезать");
+if (message.wparam==1)messagebox ("Копировать");
+}
+}
+function getmessage(0, WM_RBUTTONDOWN)//Отлавливаем клик правой кнопки мыши всплывающее меню
+{
+w=window ("Диалог" );
+result=TrackPopupMenu(vHMENU, 256, message.x+w.leftclient, message.y+w.topclient, 0, formatwi(w), 0 ); // вывести меню
+if(result==111)messagebox("Выбран пункт MessageBox" );
+if(result==222)messagebox("Выбран пункт Findimage" );
+if(result==333)transparency(25, w);
+if(result==444)transparency(50, w);
+if(result==555)transparency(75, w);
+if(result==666)transparency(100, w);
+}
+function getmessage(0, WM_LBUTTONDOWN)//Отлавливаем клик левой кнопки мыши
+{
+beep(2500, 100);
+}
+function getmessage(0, 15)//WM_PAINT Отлавливаем обновление окна
+{
+textout(1, w.left, w.top, " Обновили окно ", 0);
+sleep(100);
+}

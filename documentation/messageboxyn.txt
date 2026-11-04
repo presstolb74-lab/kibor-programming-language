@@ -1,0 +1,23 @@
+﻿НАЗВАНИЕ: messageboxyn
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=21
+
+messageboxyn - вывод сообщения с  (ДА НЕТ).
+messageboxync - вывод сообщения с  (ДА НЕТ ОТМЕНА).
+Возвращают:
+1 - да
+-1 - нет
+0 - отмена
+Пример
+int a=messageboxync("Выбор");
+if (a==1)messagebox("Да");
+if (a==-1)messagebox("Нет");
+if (a==0)messagebox("Отмена");
+или
+if (messageboxyn("Выбор")==1)
+{
+messagebox("Да");
+}
+else
+{
+messagebox("Нет");
+}

@@ -1,0 +1,27 @@
+﻿НАЗВАНИЕ: listwinprocess
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=165
+
+listwinprocess Получает список  всех  открытых, видимых окон открытых процессом по его PID.
+Узнать PID процесса - Поиск и / или получение списков процессов
+Синтаксис:
+CODE:
+int k=listwinprocess(#w[0], PID);
+Первым параметром идет указатель на массив win, в который запишутся указатели  на окна.
+Структуры win надо потом заполнить с помощью функции setwindowparam
+Вторым - PID процесса.
+Возвращает количество окон или -1 если массив win мал.
+Пример:
+CODE:
+int PID;
+win w[100];
+PID=findprocess("notepad.exe");//AvtoK.exe firefox.exe notepad.exe TOTALCMD.EXE
+if (PID>0)
+{
+int k=listwinprocess(#w[0], PID);
+messagebox (k);
+for (int n=0; n<k; n++)
+{
+setwindowparam (w[n]);
+messagebox (w.name[n]+" - "+w.class[n]+" -- "+format(w.left[n])+" - "+format(w.widthclient[n]));
+}
+}
