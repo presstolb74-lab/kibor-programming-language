@@ -1,0 +1,452 @@
+﻿НАЗВАНИЕ: showdialog
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=66
+
+Создание своего интерфейса можно реализовать с помощью WinApi Получение и обработка сообщений в немодальных окнах Кибор
+Эта версия пополнила себя немодальными диалоговыми окнами, которые могут оставаться активными во время работы скрипта и позволяют в реальном режиме управлять работой бота с помощью расположенных на них контролах.
+Видео работы с немодальным диалоговым окном..
+Визуальный редактор диалогов тут..
+Данные диалоги можно как использовать вспомогательно к  главному диалогу, вызывая по мере необходимости, так и использовать в качестве главного окна программы.
+Они обеспечивают двухстороннюю связь с работающим скриптом. Любые изменения в контролах этих окон сразу попадает в переменные работающей программы и меняют ее работу.
+Так же и работающий скрипт может изменить эти переменные и это сразу попадет в диалог.
+То есть если мы к примеру нажали на кнопку или выбрали галку или список или ввели текст, в скрипте сразу это попадет в переменные не требуя никаких дополнительных функций. Так же и изменением переменных со стороны скрипта. Сразу отобразится в диалоге изменив свойства контрола, текст и т.д.
+Доступные контролы:
+Цитата:
+BUTTON - кнопка. допускается до 30 кнопок в каждом диалоге..
+CHECK - галка. до 30.
+EDIT - поле для ввода. до 30..
+COMBO - список выпадающий. до 30..
+STATIC - статичный текст. до 30..
+для создаения диалога необходимо вызвать функцию createdialog с необходимыми параметрами в которые входят описание контролов и номер диалога.
+пример
+Цитата:
+createdialog(0,
+EDIT, #pos_size_edit[0][0], #text_edit[0] |
+STATIC, #pos_size_static[0][0], #text_static[0] |
+CHECK, #pos_size_check[0][0], #text_check[0], #flag_check[0] |
+BUTTON, #pos_size_button[0][0], #text_button[0], #flag_button[0] |
+COMBO, #pos_size_combo[0][0], #text_combo[0][0], #strok_combo[0], #flag_combo[0]);
+первый параметр номер диалога. можно до 3 одновременно выводить.
+второй описание кон троллов через |
+описание контролов
+Цитата:
+BUTTON, #pos_size_button[0][0], #text_button[0], #flag_button[0]
+первый - Тип
+второй - указатель на двухмерный массив int типа int pos_size_button[2][4]; где первый индекс количество кнопок, второй позиции по x y и ширина и высота.
+Цитата:
+int pos_size_button[2][4];
+pos_size_button[0][0]=5; pos_size_button[0][1]=40; pos_size_button[0][2]=110; pos_size_button[0][3]=20;
+кнопка в позиции x5 y40, шириной 110, высотой 20.
+третий - указатель на одномерный массив string типа string text_button[2]; равный количеству кнопок. в нем названия.
+Цитата:
+string text_button[2];
+text_button[0]="кнопка одна"; text_button[1]="вторая";
+четвертый указатель на массив int равный количеству кнопок типа int flag_button[2];
+флаг. с помощью этой переменной скрипт будет узнавать состояние кнопки.
+1 - нажали.
+0 - не нажали.
+---------------------------------------------------------------------------------------------
+EDIT, #pos_size_edit[0][0], #text_edit[0]
+как и кнопка параметры.
+третий текст в поле. эта переменная меняется сразу с вводом в поле текста. и наобором. в поле текст меняется при записи в переменную.
+---------------------------------------------------------------------------------------------
+CHECK, #pos_size_check[0][0], #text_check[0], #flag_check[0]
+галка.
+флаг имеет 1 если стоит, 0 - если нет галки.
+и наоборот при записи в переменную 0 снимает галку, 1 ставит.
+----------------------------------------------------------------------------------------------
+COMBO, #pos_size_combo[0][0], #text_combo[0][0], #strok_combo[0], #flag_combo[0]
+список выпадающий.
+#text_combo[0][0] указатель на двухмерный массив string.. в нем текст списков.
+первый индекс массива равный количеству списков, а второй равен самому большрму списку (количеству строк)
+Цитата:
+string text_combo[3][3];
+text_combo[0][0]="строка 0 первого списка"; text_combo[0][1]="строка 1 первого списка";
+text_combo[1][0]="строка 0 второго списка"; text_combo[1][1]="строка 1 второго списка"; text_combo[1][2]="строка 2 второго списка";
+text_combo[2][0]="строка 0 третьего списка"; text_combo[2][1]="строка 1 третьего списка";
+#flag_combo[0] - указатель на массив флагов списков. содержит номер строки которая включена. 0 - самый верх.
+----------------------------------------------------------------------------------------------
+STATIC, #pos_size_static[0][0], #text_static[0]
+статичный текст. но его можно поменять в процессе изменив переменную text_static..
+================================================================================================================================ =========================
+после создания диалога необходимо показать его с помощью вызова showdialog
+showdialog(0, "заголовок", позицияX, позицияY, ширина, высота, 1, 0);
+первый - номер созданного диалога.
+седьмой: 0 - при нажатие крестика (закрыть) скрывает окно. вызвать его можно опять только программно. 1 -при нажатие крестика (закрыть) останавливает скрипт.   2 - при нажатие крестика (закрыть) сворачивает окно, 3 - при нажатие крестика закрывает программу, 4 - при нажатие на крестик данное действие игнорируется и можно обработать сообщение WM_CLOSE.
+восьмой ... 0 - окно обычное.. 1- находится поверх всех окон..
+при необходимости диалог можно скрыть вызвав hidedialog
+hidedialog(0);
+и уничтожить
+destroydialog(0);
+В принципе кибор следит за тем что бы не пропускать ошибки связанные с уничтожением созданием и если не уничтожили и опять создаете под таким номеров уничтожит сам. как и в конце работы скрипта тоже..
+gethwnd(0);
+Возвращает HWND созданного диалогового окна с помощью createdialog, для использования в WinApi.
+gethwnd
+================================================================================================================================ ========================
+как я писал не требуется ничего специально отслеживать. переменные флаги и тестовые переменные будут меняться с любым изменением в диалоге и наоборот.
+отдельно   о  BUTTON. ее флаг изначально установлен в 0. при каждом нажатие он увеличивается на 1. то есть даже если скрипт пропустил нажатия он когда считает переменную узнает сколько кликов было.
+для работы с BUTTON надо использовать таймер в котором пишем такой код..
+Цитата:
+a: if (flag_button[0]>0)//пока не отработает все клики
+{
+flag_button[0]--;
+scrin();//вызов функции которая выполнится при нажатие
+goto a;
+}
+или
+Цитата:
+if (flag_button[0]>0)//один раз только не зависимо от кликов
+{
+flag_button[0]=0;// обнуляем
+scrin();//вызов функции которая выполнится при нажатие
+}
+============================================================
+пример
+CODE:
+int pos_size_button0[1][4];
+string text_button0[1];
+int flag_button0[1];
+pos_size_button0[0][0]=3; pos_size_button0[0][1]=30; pos_size_button0[0][2]=236; pos_size_button0[0][3]=20;
+text_button0[0]="Кнопка 0";
+//////////
+int pos_size_edit0[1][4];
+string text_edit0[1];
+pos_size_edit0[0][0]=3; pos_size_edit0[0][1]=5; pos_size_edit0[0][2]=100; pos_size_edit0[0][3]=20;
+text_edit0[0]="Поле 0";
+//////////
+int pos_size_check0[1][4];
+string text_check0[1];
+int flag_check0[1];
+pos_size_check0[0][0]=105; pos_size_check0[0][1]=6; pos_size_check0[0][2]=55; pos_size_check0[0][3]=20;
+text_check0[0]="Галка 0";
+flag_check0[0]=0;
+//////////
+int pos_size_combo0[1][4];
+string text_combo0[1][2];
+int strok_combo0[1];
+int flag_combo0[1];
+pos_size_combo0[0][0]=162; pos_size_combo0[0][1]=5; pos_size_combo0[0][2]=79; pos_size_combo0[0][3]=80;
+strok_combo0[0]=2;
+text_combo0[0][0]="Список 0"; text_combo0[0][1]="Список 1";
+flag_combo0[0]=0;
+//////////
+createdialog(0, BUTTON, #pos_size_button0[0][0], #text_button0[0], #flag_button0[0] |
+EDIT, #pos_size_edit0[0][0], #text_edit0[0] |
+CHECK, #pos_size_check0[0][0], #text_check0[0], #flag_check0[0] |
+COMBO, #pos_size_combo0[0][0], #text_combo0[0][0], #strok_combo0[0], #flag_combo0[0]);
+//////////
+showdialog(0, "Диалог", 162, 149, 250, 83, 1, 1);
+//////////
+loop()
+{
+if (flag_button0[0]==1)//если нажали на кнопку
+{
+flag_button0[0]=0;
+messagebox (text_edit0[0]);
+}
+if (text_edit0[0]=="кибор")//если набрале слово кибор
+{
+messagebox (text_edit0[0]);
+text_edit0[0]="Поле 0";
+}
+if (flag_combo0[0]==1)//если выбрали второй пункт в списке
+{
+messagebox (text_edit0[0]);
+flag_combo0[0]=0;
+}
+if (flag_check0[0]==1)//если выбрали галку
+{
+messagebox (text_edit0[0]);
+flag_check0[0]=0;
+}
+sleep(10);//Убрать после теста
+}
+============================================================
+демонстрационный скрипт
+Цитата:
+int n=0;
+int Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds;
+int col, x, y;
+//=================================== кнопки
+int pos_size_button[2][4];//две кнопки (позиции и размер)
+string text_button[2];//названия кнопок
+int flag_button[2];//флаг (нажата не нажата)
+//устанавливаем позицию и рамер кнопки 1
+pos_size_button[0][0]=5; pos_size_button[0][1]=40; pos_size_button[0][2]=110; pos_size_button[0][3]=20;
+text_button[0]="Сохранить скрин в";//название кнопки 1
+//устанавливаем позицию и рамер кнопки 2
+pos_size_button[1][0]=110; pos_size_button[1][1]=145; pos_size_button[1][2]=129; pos_size_button[1][3]=20;
+text_button[1]="Остановить скрипт";//название кнопки 2
+//=================================== поля ввода текста
+int pos_size_edit[2][4];//два поля ввода текста (позиции и размер)
+string text_edit[2];//текст а полях
+//устанавливаем позицию и рамер поля ввода текста 1
+pos_size_edit[0][0]=5; pos_size_edit[0][1]=115; pos_size_edit[0][2]=70; pos_size_edit[0][3]=20;
+text_edit[0]="text";//начальный текст 1
+//устанавливаем позицию и рамер поля ввода текста 2
+pos_size_edit[1][0]=86; pos_size_edit[1][1]=115; pos_size_edit[1][2]=153 ; pos_size_edit[1][3]=20;
+text_edit[1]="editsddgfdfg";//начальный текст 2
+//=================================== галки
+int pos_size_check[4][4];//4 галки (позиции и размер)
+string text_check[4];//названия галок
+int flag_check[4];//флаг (зажата не зажата)
+//устанавливаем позицию и рамер галки 1
+pos_size_check[0][0]=120; pos_size_check[0][1]=40; pos_size_check[0][2]=38; pos_size_check[0][3]=20;
+flag_check[0]=1;//флаг галки 1 (зажата не зажата)
+text_check[0]="bmp";//название галки  1
+//устанавливаем позицию и рамер галки 2
+pos_size_check[1][0]=162; pos_size_check[1][1]=40; pos_size_check[1][2]=38; pos_size_check[1][3]=20;
+flag_check[1]=0;//флаг галки 2 (зажата не зажата)
+text_check[1]="jpg";//название галки  2
+//устанавливаем позицию и рамер галки 3
+pos_size_check[2][0]=202; pos_size_check[2][1]=40; pos_size_check[2][2]=38; pos_size_check[2][3]=20;
+flag_check[2]=0;//флаг галки 3 (зажата не зажата)
+text_check[2]="png";//название галки  3
+//устанавливаем позицию и рамер галки 4
+pos_size_check[3][0]=5; pos_size_check[3][1]=65; pos_size_check[3][2]=215; pos_size_check[3][3]=20;
+flag_check[3]=0;//флаг галки 4 (зажата не зажата)
+text_check[3]="Сворачивать окно перед скриншотом";//название галки  4
+///=================================== список выпадающий
+int pos_size_combo[1][4];//один  выпадающий список (позиции и размер)
+string text_combo[1][2];//текст га два пункта  (установить по максимальному списку)
+int strok_combo[1];//количество строк
+int flag_combo[1];//номер пункта
+//устанавливаем позицию и рамер списка
+pos_size_combo[0][0]=5; pos_size_combo[0][1]=145; pos_size_combo[0][2]=100; pos_size_combo[0][3]=100;
+flag_combo[0]=0;//номер пункта
+strok_combo[0]=2;//количество строк
+text_combo[0][0]="Остановить скрипт"; text_combo[0][1]="Закрыть программу";//текст строк
+//=================================== статичный текст (можно изменять)
+int pos_size_static[2][4];//2 статичный текст (позиции и размер)
+string text_static[2];//2  статичный текст (текст)
+//устанавливаем позицию и рамер текста 1
+pos_size_static[0][0]=20; pos_size_static[0][1]=10; pos_size_static[0][2]=200; pos_size_static[0][3]=18;
+text_static[0]="";//текст 1
+//устанавливаем позицию и рамер текста 2
+pos_size_static[1][0]=45; pos_size_static[1][1]=95; pos_size_static[1][2]=150; pos_size_static[1][3]=18;
+text_static[1]="Цвет пикселя под курсором";//текст 2
+//Создаем диалог
+createdialog(0,
+EDIT, #pos_size_edit[0][0], #text_edit[0]|
+STATIC, #pos_size_static[0][0], #text_static[0]|
+CHECK, #pos_size_check[0][0], #text_check[0], #flag_check[0]|
+BUTTON, #pos_size_button[0][0], #text_button[0], #flag_button[0]|
+COMBO, #pos_size_combo[0][0], #text_combo[0][0], #strok_combo[0], #flag_combo[0]);
+getdisplay(col, x, y);//узнаем разрешение что бы вывести по центру
+//Визуализируем диалог
+showdialog(0, "Немодальный диалог", x/2-125, y/2-110, 250, 220, 1,  0);
+int t_flag_check[3];
+for (n=0; n<3; n++)t_flag_check[n]=flag_check[n];
+enabletimer(0);//включаем таймер для обработки сообщений от диалога
+lop:;//тут основная петля бота
+col=getcolor();
+text_edit[0]=format(col);
+text_edit[1]="R  "+format(rvalue(col))+"        G  "+format(gvalue(col))+"        B  "+format(bvalue(col));
+sleep(20);
+goto lop;
+er: destroydialog (0);//уничтожение диалог..
+function  scrin()//скриншот
+{
+if (flag_check[3]==1){hidedialog(0);sleep(200);}//сворачивать
+if (flag_check[0]==1)//bmp
+{
+savescreen(pathfolder()+"image.bmp", 0, 0, x, y, -1);
+sleep(500);
+start(pathfolder()+"image.bmp");
+}
+if (flag_check[1]==1)//jpg
+{
+savescreen(JPG, pathfolder()+"image.jpg", 0, 0, x, y, -1);
+sleep(500);
+start(pathfolder()+"image.jpg");
+}
+if (flag_check[2]==1)//png
+{
+savescreen(PNG, pathfolder()+"image.png", 0, 0, x, y, -1);
+sleep(500);
+start(pathfolder()+"image.png");
+}
+//развернуть если свернутое
+if (flag_check[3]==1)showdialog(0, "Немодальный диалог", x/2-125, y/2-110, 250, 220, 1, 0);
+}
+function  perekluchatel_galok()//реализация переключателя галок
+{
+if (flag_check[0]==1 && t_flag_check[0]!=flag_check[0])
+{flag_check[1]=0; flag_check[2]=0; t_flag_check[1]=0; t_flag_check[2]=0; t_flag_check[0]=flag_check[0];}
+if (flag_check[1]==1 && t_flag_check[1]!=flag_check[1])
+{flag_check[0]=0; flag_check[2]=0; t_flag_check[0]=0; t_flag_check[2]=0; t_flag_check[1]=flag_check[1];}
+if (flag_check[2]==1 && t_flag_check[2]!=flag_check[2]){
+flag_check[0]=0; flag_check[1]=0; t_flag_check[0]=0; t_flag_check[1]=0; t_flag_check[2]=flag_check[2];}
+if (flag_check[0]==0 && flag_check[1]==0 && flag_check[2]==0)
+{
+if (t_flag_check[0]!=flag_check[0]){flag_check[0]=1;t_flag_check[0]=flag_check[0];}
+if (t_flag_check[1]!=flag_check[1]){flag_check[1]=1;t_flag_check[1]=flag_check[1];}
+if (t_flag_check[2]!=flag_check[2]){flag_check[2]=1;t_flag_check[2]=flag_check[2];}
+}
+}
+CREATE_TIMER(0, 50)//выполнение таймера через 50 мсек.
+{
+//реализация переключателя галок
+perekluchatel_galok();
+//отлов нажатия кнопки сериншота
+if (flag_button[0]>0)
+{
+flag_button[0]=0;//обнулить флаг нажатия кнопки..
+scrin();//скриншот
+}
+//отлов нажатия кнопки выхода
+if (flag_button[1]>0)
+{
+flag_button[0]=0;//обнулить флаг нажатия кнопки..
+if (flag_combo[0]==0)goto er;
+if (flag_combo[0]==1){destroydialog (0);close();}
+}
+//получит время и записать в переменную статичного текста
+getlocaltime(Year, Month, DayOfWeek, Day, Hour, Minute, Second, Milliseconds);
+text_static[0]="Время: "+format(Hour)+" часов, "+format(Minute)+" минут, "+format(Second)+" секунд";
+if (flag_combo[0]==0)text_button[1]="Остановить скрипт";//меняем текст кнопки
+if (flag_combo[0]==1)text_button[1]="Закрыть программу";//меняем текст кнопки
+}
+===========--------------------------------================================
+пример чата между программами.
+собрать эти 2 скрипта в exe......
+1 скрипт. собрать в exe и назвать его Prog 1
+Цитата:
+int col, x,y;
+//=================================== кнопки
+int pos_size_button[1][4];//две кнопки (позиции и размер)
+string text_button[1];//названия кнопок
+int flag_button[1];//флаг (нажата не нажата)
+//устанавливаем позицию и рамер кнопки 1
+pos_size_button[0][0]=5; pos_size_button[0][1]=57; pos_size_button[0][2]=235; pos_size_button[0][3]=20;
+text_button[0]="Отправить";//название кнопки 1
+//=================================== поля ввода текста
+int pos_size_edit[1][4];//два поля ввода текста (позиции и размер)
+string text_edit[1];//текст а полях
+//устанавливаем позицию и рамер поля ввода текста 1
+pos_size_edit[0][0]=5; pos_size_edit[0][1]=35; pos_size_edit[0][2]=235; pos_size_edit[0][3]=20;
+text_edit[0]="";//начальный текст 1
+//=================================== статичный текст (можно изменять)
+int pos_size_static[1][4];//2 статичный текст (позиции и размер)
+string text_static[1];//2 статичный текст (текст)
+//устанавливаем позицию и рамер текста 1
+pos_size_static[0][0]=5; pos_size_static[0][1]=10; pos_size_static[0][2]=235; pos_size_static[0][3]=18;
+text_static[0]="";//текст 1
+//Создаем диалог
+createdialog(0,
+EDIT, #pos_size_edit[0][0], #text_edit[0]|
+STATIC, #pos_size_static[0][0], #text_static[0]|
+BUTTON, #pos_size_button[0][0], #text_button[0], #flag_button[0]);
+getdisplay(col, x, y);//узнаем разрешение что бы вывести по центру
+//Визуализируем диалог
+showdialog(0, "Prog 1", x/2-125, y/2-110, 250, 120, 1, 1);
+enabletimer(0);
+win w=window ("Prog 2");
+char ch[512];
+lop:
+if (w==0)
+{
+w=window ("Prog 2");
+sleep (20);
+goto lop;
+}
+readbuffer(#ch[0], 512, w);//Читаем с буфера программы на которую указывает указатель w
+text_static[0]=format(#ch[0]);
+sleep(20);
+goto lop ;
+CREATE_TIMER(0, 50)//выполнение таймера через 50 мсек.
+{
+if (flag_button[0]>0)
+{
+flag_button[0]=0;//обнулить флаг нажатия кнопки..
+strcpy(#ch[0], text_edit[0]);
+writebuffer(#ch[0], 512, w);
+}
+}
+2 скрипт. собрать в exe и назвать его Prog 2
+Цитата:
+int col, x,y;
+//=================================== кнопки
+int pos_size_button[1][4];//две кнопки (позиции и размер)
+string text_button[1];//названия кнопок
+int flag_button[1];//флаг (нажата не нажата)
+//устанавливаем позицию и рамер кнопки 1
+pos_size_button[0][0]=5; pos_size_button[0][1]=57; pos_size_button[0][2]=235; pos_size_button[0][3]=20;
+text_button[0]="Отправить";//название кнопки 1
+//=================================== поля ввода текста
+int pos_size_edit[1][4];//два поля ввода текста (позиции и размер)
+string text_edit[1];//текст а полях
+//устанавливаем позицию и рамер поля ввода текста 1
+pos_size_edit[0][0]=5; pos_size_edit[0][1]=35; pos_size_edit[0][2]=235; pos_size_edit[0][3]=20;
+text_edit[0]="";//начальный текст 1
+//=================================== статичный текст (можно изменять)
+int pos_size_static[1][4];//2 статичный текст (позиции и размер)
+string text_static[1];//2 статичный текст (текст)
+//устанавливаем позицию и рамер текста 1
+pos_size_static[0][0]=5; pos_size_static[0][1]=10; pos_size_static[0][2]=235; pos_size_static[0][3]=18;
+text_static[0]="";//текст 1
+//Создаем диалог
+createdialog(0,
+EDIT, #pos_size_edit[0][0], #text_edit[0]|
+STATIC, #pos_size_static[0][0], #text_static[0]|
+BUTTON, #pos_size_button[0][0], #text_button[0], #flag_button[0]);
+getdisplay(col, x, y);//узнаем разрешение что бы вывести по центру
+//Визуализируем диалог
+showdialog(0, "Prog 2", x/2-125, y/2-110, 250, 120, 1, 1);
+enabletimer(0);
+char ch[512];
+lop:
+readbuffer(#ch[0], 512);//Читаем с своего буфера
+text_static[0]=format(#ch[0]);
+sleep(20);
+goto lop ;
+CREATE_TIMER(0, 50)//выполнение таймера через 50 мсек.
+{
+if (flag_button[0]>0)
+{
+flag_button[0]=0;//обнулить флаг нажатия кнопки..
+strcpy(#ch[0], text_edit[0]);
+writebuffer(#ch[0], 512);
+}
+}
+запустить эти программы. вводить и отправлять сообщения друг другу..
+к теме Обмен данными между программами и скриптами. Упраление другой программой
+============================
+Как сделать не активной кнопку
+CODE:
+int STATUS=1;
+int pos_size_button0[4][4];
+string text_button0[4];
+int flag_button0[4];
+pos_size_button0[0][0]=11; pos_size_button0[0][1]=32; pos_size_button0[0][2]=168; pos_size_button0[0][3]=20;
+pos_size_button0[1][0]=11; pos_size_button0[1][1]=7; pos_size_button0[1][2]=167; pos_size_button0[1][3]=20;
+pos_size_button0[2][0]=12; pos_size_button0[2][1]=59; pos_size_button0[2][2]=168; pos_size_button0[2][3]=20;
+pos_size_button0[3][0]=12; pos_size_button0[3][1]=90; pos_size_button0[3][2]=169; pos_size_button0[3][3]=48;
+text_button0[0]="Активировать"; text_button0[1]="Деактивировать"; text_button0[2]="Узнать статус"; text_button0[3]="Подопытная мышь";
+//////////
+createdialog(0, BUTTON, #pos_size_button0[0][0], #text_button0[0], #flag_button0[0]);
+//////////
+showdialog(0, "Диалог", 258, 234, 197, 180, 1, 1);
+//////////
+external(INT, "EnableWindow", "EnableWindow", "user32.dll");
+loop()
+{
+if (flag_button0[1]>0)
+{
+flag_button0[1]=0;
+EnableWindow(formatwi(window ("Подопытная мышь", "Button", -1, -1, 169, 48, -1)), 0);
+STATUS=0;
+}
+if (flag_button0[0]>0)
+{
+flag_button0[0]=0;
+EnableWindow(formatwi(window ("Подопытная мышь", "Button", -1, -1, 169, 48, -1)), 1);
+STATUS=1;
+}
+if (flag_button0[2]>0)
+{
+flag_button0[2]=0;
+if (STATUS==1)messagebox ("активна");
+if (STATUS==0)messagebox ("не активна");
+}
+sleep(10);//Убрать после теста
+}

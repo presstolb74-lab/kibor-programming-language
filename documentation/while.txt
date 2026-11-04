@@ -1,0 +1,44 @@
+﻿НАЗВАНИЕ: while
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=78
+
+Добавлен оператор while.
+Служит для организации циклов с проверкой условия.
+синтаксис
+CODE:
+int a=0;
+while(a<5)//выполнится если a меньше 5
+{
+messagebox (a);
+a++;
+}
+CODE:
+int tim=gettime();
+while (gettime()-tim<2000)beep(1000, 100);//выполнится пока не пройдет 2 сек..
+допускается множественная проверка && ||
+CODE:
+int tim=gettime();
+while (gettime()-tim<20000 && getkeystate(20)==0)beep(2000, 50);//выполнится в течение 20 сек, но можно прервать нажав на CapsLock
+вложенные
+CODE:
+int a=0;
+while(a<5)//выполнится если a меньше 5
+{
+int tim=gettime();
+while (gettime()-tim<500)beep(1000, 100);//выполнится пока не пройдет 2 сек..
+messagebox (a);
+a++;
+}
+Без указания операторов сравнения
+CODE:
+int a=1;
+while(a)
+{
+messagebox("");
+}
+В этом случае идет сравнение с 0 и выглядит так
+CODE:
+int a=1;
+while(a!=0)
+{
+messagebox("");
+}

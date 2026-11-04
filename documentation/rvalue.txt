@@ -1,0 +1,85 @@
+﻿НАЗВАНИЕ: rvalue
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=63
+
+sound - проигрывает wav файлы.
+Цитата:
+sound ("C:\t.wav", 1);
+первый параметр - путь к файлу
+второй:
+0 - один раз проиграть
+1 - зациклить.
+не останавливает выполнение скрипта.
+остановить проигрывание
+Цитата:
+sound (0);
+можно паковать в ресурсы и проигрывать так примерно..
+Цитата:
+unpack("C:\club.wav", tempfolder()+"t.wav", 1);
+sound (tempfolder()+"t.wav", 1);
+messagebox ("стоп");
+sound (0);
+RESOURCE
+{
+"C:\club.wav"
+}
+Одновременное проигрывание wav или mp3 файлов можно осуществить с помощью mciSendString
+CODE:
+external (INT, "mciSendString", "mciSendStringA", "Winmm.dll");
+mciSendString("open C:\1\b.wav", 0, 1, 0);//Длинный
+mciSendString("open C:\1\h.wav", 0, 1, 0);//Короткий
+loop()
+{
+mciSendString("play C:\1\b.wav", 0, 1, 0);
+loop(20)
+{
+mciSendString("play C:\1\h.wav", 0, 1, 0);
+sleep(100);
+mciSendString("close C:\1\h.wav", 0,1, 0);
+}
+mciSendString("close C:\1\b.wav", 0,1, 0);
+}
+Зацикливание проигрывания
+CODE:
+external (INT, "mciSendString", "mciSendStringA", "Winmm.dll");
+char SST[256];
+int adr=address(#SST[0]);
+mciSendString("open C:\1\b.wav", 0, 1, 0);
+loop()
+{
+mciSendString("play C:\1\b.wav", 0, 1, 0);
+mciSendString("status C:\1\b.wav mode", adr, 256, 0);
+while(format(#SST[0])=="playing")mciSendString("status C:\1\b.wav mode", adr, 256, 0);
+mciSendString("close C:\1\b.wav", 0,1, 0);
+messagebox ("Усе. Можно сначала");//Закоментировать для зацикливания
+}
+Пример записи с микрофона
+CODE:
+external (INT, "mciSendString", "mciSendStringA", "Winmm.dll");
+mciSendString("open new Type waveaudio Alias recsound", "", 0, 0);
+mciSendString("set recsound bitspersample 16", "", 0, 0);
+mciSendString("set recsound samplespersec 44100", "", 0, 0);
+mciSendString("record recsound", "", 0, 0);
+pause(5000);//Это время будет записывать
+mciSendString("save recsound c:\111.wav", "", 0, 0);
+mciSendString("close recsound", "", 0, 0)
+Этот код выведет уровень звука который воспринимает микрофон.
+От 0 до 128
+Цитата:
+external (INT, "mciSendString", "mciSendStringA", "Winmm.dll");
+mciSendString("open new alias ScriptMicrophone type waveaudio wait", "", 0, 0);
+char t[4];
+loop()
+{
+mciSendString("status ScriptMicrophone level", address(#t[0]), 16, 3);
+textout(0, 100, 50, format(#t[0])+"---------", 0);
+}
+============================================
+получение компонентов цвета в RGB
+Цитата:
+int a=16776960;// цвет в int
+int r=rvalue(a);//красный компонент (1 байт)
+int g=gvalue(a);//зеленый
+int b=bvalue(a);//синий
+int col=rgb(r, g, b);//обратно в int
+messagebox (b);
+messagebox (col);

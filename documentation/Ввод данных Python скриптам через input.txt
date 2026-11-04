@@ -1,0 +1,119 @@
+﻿НАЗВАНИЕ: Ввод данных Python скриптам через input
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=153
+
+Многопроцессорность Python. Запуск нескольких процессов Python, работающих одновременно и незавивисимо друг от друга
+Ознакомиться с оператором kiborcode. Оператор kiborcode позволяет встраивать исполняемый код Кибор непосредственно в код Python в блоках __python_sync и __python
+Появилась возможность обратной связи с работающим скриптом Питона через его input.
+Если во время работы скрипта встретится input, скрипт станет на паузу, Кибор выведет диалоговое окно с двумя полями и кнопкой Отправить.
+Верхнее поле служит для сообщения от Python, которое он послал в input, второе для нашего ответа.
+Работает как с включенной консолью, так и не включенной.
+input обрабатывается только в синхронных функциях
+sendgetpython
+и синхронном блоке Питон скриптов
+__python_sync   и  __end_python
+Пример. Не забудьте поставить пробелы!
+CODE:
+enableconsolepython(1, 1, 10, 10, 1300, 300);
+runpython();
+__python_sync
+a=int(input('Количество циклов?'))
+for number in range(a):
+(4 пробела)print(number)
+__end_python
+closepython();
+messagebox ("Финиш");
+disableconsolepython();
+В остальных случаях (не синхронных) input будет проигнорирован.
+CODE:
+enableconsolepython(1, 1, 50, 50, 500, 600);
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}//Запускаем интерпретатор Python
+__python_sync
+import time
+def my_function(n):
+(4 пробела)time.sleep(2) #Тут типа что то умное делаем. Короче смотрим на синхронность
+(4 пробела)if n == 0:
+(8 пробелов)return 'Введите ваше имя'
+(4 пробела)else:
+(8 пробелов)return 'Введите вашу фамилию'
+a=input(my_function(0))
+print('Вас зовут '+a)
+a=input(my_function(1))
+print('А фамилия '+a)
+__end_python
+closepython();//Завершаем работу с интерпретатором
+er:;
+messagebox ("Финиш");
+disableconsolepython();
+Еще пример использования input:
+Цитата:
+element.send_keys(input('Введите текст запроса'))
+Запрос от Python во время работы скрипта (Отобразить)
+CODE:
+string path_webdriver=pathfolder()+"python\webdriver\geckodriver.exe"; // Путь к webdriver. C:\Program Files (x86)\Kibor\python\webdriver\geckodriver.exe
+string path_browser="C:\Program Files\Mozilla Firefox\Firefox.exe"; // Путь к браузеру Мозила
+enableconsolepython(1, 1, 50, 50, 400, 600);
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}//Запускаем интерпретатор Python
+//Подготовка
+import();
+//Запуск браузера и переход на https://www.google.com
+start_browser();
+//Находим на поисковой странице Гугла поле для ввода в поиск и вводим туда запрос
+find_google();
+//Искать на странице открывшегося поиска ссылку которая ведет на kibor-bot.com и кликнуть по ней
+F: if (find_site("kibor-bot.com")==0)//Если этой станице ссылки на kibor-bot.com нет
+{//Надо перейти на следующую станицу поиска
+if (find_site("Следующая")==0) goto exits;//Если на этой странице нет кнопки Следующая завершить программу
+pause(5000);//Если кликнули по кнопке Следующая пауза 5 секунд и повторяем поиск ссылки на kibor-bot.com
+goto F;
+}
+exits:;
+closepython();//Завершаем работу с интерпретатором
+er:;
+messagebox ("Финиш");
+disableconsolepython();
+function find_site(string find_link)//Искать на странице открывшегося поиска ссылку которая ведет на указанный линк
+{
+string rez;
+sendpython("web.find_element_by_partial_link_text(^'"+find_link+"^').click()");//Отправляем Питону команду найти ссылку содержащую kibor-bot.com и по ней кликнуть
+sendpython("print(^'yes^')");//Сразу же не ожидая окончания первой команды Отправить print('yes')
+loop()//Замкнутый цикл в котором ждем ответ
+{
+rez=getpython();//Пытаемся считать ответ Если ссылка не была найдена, то в ответе кроме yes будет еще описание ошибки.
+if (rez!="ERROR_READ_PYTHON")//Если Питон нам что то ответил..
+{
+//messagebox (rez+);//Посмотреть что приходит когда нашли ссыку и когда не нашли
+if (rez=="yes")return 1;//Если в ответе только слово yes, значит мы нашли ссылку и описания ошибки нет.
+return 0;//Иначе в ответе не только слово yes. Значит мы не нашли ссылку
+}
+}
+}
+function find_google()//Находим на поисковой странице Гугла поле для ввода в поиск
+{
+//Python выдаст запрос о вводе поисковой фразы
+__python_sync
+element = web.find_element_by_name('q')
+element.send_keys(input('Введите текст запроса'))
+time.sleep(1);
+element.send_keys(Keys.ENTER)
+time.sleep(3);
+__end_python
+}
+function start_browser()//Запуск браузера
+{
+//Вначале инициализируем переменные в Pythen нашими значениями синхронными функциями.
+sendgetpython("p_web=^'"+path_webdriver+"^'");// p_web=path_webdriver
+sendgetpython("p_br=^'"+path_browser+"^'"); // p_br=path_browser
+__python_sync
+web = webdriver.Firefox(executable_path=p_web, firefox_binary=p_br) # Тут мы используе переменные p_web и p_br
+web.get('https://www.google.com')
+time.sleep(1);
+__end_python
+}
+function import()//Подготовка
+{
+__python_sync
+import time
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+__end_python
+}

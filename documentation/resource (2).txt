@@ -1,0 +1,91 @@
+﻿НАЗВАНИЕ: resource
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=62&postid=1426083929#1426083929
+
+Если очень надо, добавил функцию resource
+можно загрузить файл с ресурса в массив char без распаковки
+Цитата:
+char buf[1000000];
+resource(#buf[0], "C:\images.bmp"); //загружает в массив buf с ресурса файл обозначенный "C:\images.bmp" в блоке RESOURCE
+RESOURCE
+{
+"C:\images.bmp" ;
+}
+Возвращает количество загруженных байт.
+пример как использовать для чтения изображений прямо с ресурса не распаковывая.
+использовать не напрямую bmp, что бы не читать формат.
+сначала надо конвертировать нужные bmp в другие файлы.
+для этого можно использовать этот скрипт
+Цитата:
+//создать папку C:\images и скинуть в нее все bmp
+//создать в этой папке папку image_res (C:\images\image_res). в ней бут конвертованные файлы
+string pyt="C:\images\";
+string file_bmp[1000];
+int kol, n;
+kol=dir(pyt, #file_bmp[0], "file", "bmp");//узнаем все bmp
+for (n=0; n<kol; n++)//перечислить все bmp и конверт их
+{
+if (bmpt()==-1){messagebox (ошибочка.); goto er;}
+}
+er:;
+function bmpt()
+{
+int ImageS[500][500];
+int x, y, x1, y1;
+char byt[4];
+if (loadimage (#ImageS[0][0], pyt+file_bmp[n])<1)return -1;
+x=imagewidth(#ImageS[0][0]);
+y=imageheight(#ImageS[0][0]);
+if (fopen (pyt+"image_res\"+file_bmp[n]+"t", "wb")!=0)
+{
+codhex(x, #byt[0]);//Конвертируем число int 4 байт x в HEX (ширина)
+fwriteb(byt[0]);fwriteb(byt[1]);fwriteb(byt[2]);fwriteb(byt[3]);
+codhex(y, #byt[0]);//Конвертируем число int 4 байт y в HEX (высота)
+fwriteb(byt[0]);fwriteb(byt[1]);fwriteb(byt[2]);fwriteb(byt[3]);
+for (y1=0; y1<y; y1++)
+{
+for (x1=0; x1<x; x1++)
+{
+codhex(ImageS[x1][y1], #byt[0]);//Конвертируем число int 4 байт ImageS[x1][y1] в HEX (цвет)
+fwriteb(byt[0]);
+fwriteb(byt[1]);
+fwriteb(byt[2]);
+fwriteb(byt[3]);
+}
+}
+fclose();
+}
+return 0;
+}
+потом поместить в ресурсы файла с папки C:\images\image_res с расширением bmpt
+с ресурса использовать с помощью resource так
+CODE:
+int image[500][500];
+int i5[500][500];
+loadimage_res(#image[0][0], "C:\images\image_res\image0.bmpt");
+loadimage_res(#i5[0][0], "C:\images\image_res\5.bmpt");
+function loadimage_res(int #images[0][0], string pyt);
+{
+char buf[1000000];
+int sezbuf;
+int n, x, y,  x1, y1;
+sezbuf=resource(#buf[0], pyt);
+n=0; x=codhexi(#buf[n], 4);//перевести HEX код 4 байт с целое число int x
+n=4; y=codhexi(#buf[n], 4);//перевести HEX код 4 байт с целое число int x
+n=8;
+for (y1=0; y1<y; y1++)
+{
+for (x1=0; x1<x; x1++)
+{
+images[x1][y1]=codhexi(#buf[n], 4);//перевести HEX код 4 байт с целое число int image[x1][y1]
+n=n+4;
+}
+}
+for (x1=0; x1<=x; x1++)images[x1][y]=-1;//забить границу -1 в целое число int ImageS[x1][y1]
+for (y1=0; y1<=y; y1++)images[x][y1]=-1;//забить границу -1 в целое число int ImageS[x1][y1]
+}
+RESOURCE
+{
+"C:\images\image_res\image0.bmpt";
+"C:\images\image_res\5.bmpt" ;
+}
+Skycrew

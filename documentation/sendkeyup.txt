@@ -1,0 +1,31 @@
+﻿НАЗВАНИЕ: sendkeyup
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=100
+
+Добавил sendkeydown и sendkeyup
+Зажимают и отпускают клавиши клавиатуры в не активном окне.
+Кибор должен быть запущен после программы в которой будет автоматизация..
+Синтаксис
+sendkeydown(16, w);//Зажимает шифт в не активном окне с указателем w
+sendkeyup(16, w);//Отпустит шифт в не активном окне с указателем w
+Первый параметр цифровой код клавиши. Второй указатель на окно.
+Пример
+CODE:
+win w=window (-1, "Edit", window ("Безымянный — Блокнот", "Notepad", -1));
+loop()
+{
+sendkeydown(16, w);
+sendkey('8', w);
+sendkeyup(16, w);
+sendkey('8', w);
+sleep(200);
+}
+Напечатает * в не активном окне
+CODE:
+win w=window (-1, "Edit", window ("Безымянный — Блокнот", "Notepad", -1));
+sendkeydown(16, w);
+sendkey('8', w);
+sendkeyup(16, w);
+Просто без sendkeydown и sendkeyup напечатает 8
+CODE:
+win w=window (-1, "Edit", window ("Безымянный — Блокнот", "Notepad", -1));
+sendkey('8', w);

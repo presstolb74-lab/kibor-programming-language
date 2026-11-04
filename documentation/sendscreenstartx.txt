@@ -1,0 +1,22 @@
+﻿НАЗВАНИЕ: sendscreenstartx
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=172
+
+screenstartx - После выполнения функции screen  screen, screenstartx возвращает старт зоны получения скриншота X
+screenstarty - После выполнения функции screen , screenstarty возвращает старт зоны получения скриншота Y
+Если screen не вызывалась, функции эти возвращают 0.
+CODE:
+int x=screenstartx();
+sendscreenstartx sendscreenstarty может инициализировать возврат функций screenstartx screenstarty числом указанным в параметре:
+CODE:
+sendscreenstartx(0)
+Применение:
+Цитата:
+int Image_0[6][5];
+loadimage (#Image_0[0][0], "C:\Image_0.bmp");
+int x, y;
+int Screen[1000][1000];
+screen (#Screen[0][0], 20, 50, 500, 500, -1);
+if (findimage(1, #Image_0[0][0], -1, #x, #y, 0, 0, 200, 200, #Screen[0][0]))
+{
+mousemove(x+screenstartx(), y+screenstarty());//Учитываем начало зоны получения скриншота
+}

@@ -1,0 +1,200 @@
+﻿НАЗВАНИЕ: strhextodec
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=155
+
+strhextodec - универсальная функция для перевода текстового представления Hex записи в Dec текст и числа.
+Возможности:
+Перевести текст
+"EFF0E8E2E5F2" в "Привет"
+Перевести строку
+"Тут написано d2e5eaf1f220e220486578" в "Тут написано Текст в Hex"
+Перевести частичную строку в UTF16 в текст
+"Hello \u041f\u0440\u0438\u0432\u0435\u0442" в "Hello Привет"
+Конвертировать URL кодировку
+"URL encoding %D0%9A%D0%B8%D0%B1%D0%BE%D1%80+-+%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D1%83%D0%B5%D0%BC%D1%8B%D0%B9+%D0%BA%D0%BB%D0%B8%D0%BA%D0%B5%D1%80" в "URL encoding Кибор - Программируемый кликер"
+Перевести текст с Hex числами в текс с Dec  числами
+"Это число равно 186A0h, так же как и это десятичное 100000" в "Это число равно 100000, так же как и это десятичное 100000"
+"Это число равно 0x186A0, так же как и это десятичное 100000" в "Это число равно 100000, так же как и это десятичное 100000"
+"Дробное 0x3FB3E975 равно 1.405562" в это "Дробное 1.405562 равно 1.405562"
+Получение числовых значений в котором записаны Hex числа в переменные int и double
+Получение отображаемых с Hex чисел в текст в Dec
+====================================================================
+Синтиаксис:
+CODE:
+strhextodec(CONVERT_T, s, #r);
+strhextodec(CONVERT_TI, s, "0x", #r);
+strhextodec(CONVERT_TI, s, #r, "h");
+strhextodec(CONVERT_TI, s, "^'", #r, "^'");
+Первый параметр:
+CONVERT_T - Ожидается текст. Перевод идет по байтам слева на право
+CONVERT_I - Ожидается целое число. Перевод идет справа на лево.
+CONVERT_D - Ожидается дробное число. Перевод идет справа на лево.
+CONVERT_TI - Ожидается Dec текст с Hex целыми числами. Чтение идет слева на право, но перевод Hex чисел идет справа на лево и отображаются в Dec
+CONVERT_TD - Ожидается Dec текст с Hex дробными числами. Чтение идет слева на право, но перевод Hex чисел идет справа на лево и отображаются в Dec
+CONVERT_U16 - Ожидается представление текстовой записи UTF16.
+Второй параметр
+Строка string с текстом который надо преобразовать
+Третий, четвертый, пятый:
+В зависимости от формата записи Hex, настраваются параметры.
+Если ожидается Hex сплошной, без флагов "d2e5eaf1f220e220486578", третий и пятый параметры не указываются.
+Если ожидается Hex с флагом в начале "0x186A0" "\x186A0" "\xd2\xe5\xea", указываются:
+CODE:
+"0x", #r
+"0x", это какой флаг обозначения Hex записи в данном тексте используется.
+#r - Указатель на приемник
+Если ожидается Hex с флагом в конце "186A0h", указываются:
+CODE:
+#r, "h"
+"h", это какой флаг обозначения Hex записи в данном тексте используется.
+#r - Указатель на приемник
+Если ожидается Hex с флагом в начале и в конце "'186A0'", указываются:
+CODE:
+"^'", #r, "^'"
+"^'", это какой флаг обозначения Hex записи в данном тексте используется. (^ является символом экранирования в Кибор)
+#r - Указатель на приемник
+Либо любые другие используемые флаги.
+Возвращает количество преобразованных байт
+CODE:
+//Конвертация HEX тескста в строку
+string s="Тут написано d2e5eaf1f220e220486578";
+string r;
+int k=strhextodec(CONVERT_T, s, #r);
+messagebox (r);
+CODE:
+string s="Тут написано \xd2\xe5\xea\xf1\xf2\x20\xe2\x20\x48\x65\x78";
+string r;
+int k=strhextodec(CONVERT_T, s, "\x", #r);
+messagebox (r);
+CODE:
+//Конвертация тескста в котором есть HEX числа. Переводим их в DEC представление
+string s="Это число равно 0x186A0, так же как и это десятичное 100000";
+string r;
+int k=strhextodec(CONVERT_TI, s, "0x", #r);
+messagebox (r);
+CODE:
+string s="Это число равно 186A0h, так же как и это десятичное 100000";
+string r;
+int k=strhextodec(CONVERT_TI, s, #r, "h");
+messagebox (r);
+CODE:
+//Это число равно '186A0', так же как и это десятичное 100000
+string s="Это число равно ^'186A0^', так же как и это десятичное 100000";
+messagebox (s);
+string r;
+int k=strhextodec(CONVERT_TI, s, "^'", #r, "^'");
+messagebox (r);
+CODE:
+//Смешанная строка, где есть текст, который записан в Hex и числа в Hex
+string s="Тут написано \xd2\xe5\xea\xf1\xf2\x20\xe2\x20\x48\x65\x78, а это число равно 0x186A0";
+string r;
+int k=strhextodec(CONVERT_T, s, "\x", #r);
+strhextodec(CONVERT_TI, r, "0x", #s);
+messagebox (s);
+CODE:
+//Получить число в переменную int
+string s="186A0";
+int r;
+strhextodec(CONVERT_I, s, #r);
+messagebox (r);
+CODE:
+string s="0x186A0";
+int r;
+strhextodec(CONVERT_I, s, "0x", #r);
+messagebox (r);
+CODE:
+string s="186A0h";
+int r;
+strhextodec(CONVERT_I, s, #r, "h");
+messagebox (r);
+CODE:
+string s="^'186A0^'";//'186A0'
+int r;
+strhextodec(CONVERT_I, s, "^'", #r, "^'");
+messagebox (r);
+CODE:
+//В массив char (Выделять на один байт больше чем планируется получить, так как в последний байт запишется 0)
+string s="414243";
+char r[5];
+strhextodec(CONVERT_T, s, #r[0]);
+messagebox (format(#r[0]));
+CODE:
+//Число в массив char (Выделять на один байт больше чем планируется получить, так как в последний байт запишется 0)
+string s="414243";//Равно числу 4276803
+char r[5];
+strhextodec(CONVERT_I, s, #r[0]);//Прочитает справа на лево
+messagebox (format(#r[0]));
+int i=addressi(address(#r[0]));
+messagebox (i);
+CODE:
+//Конвертация Hex utf8
+string s="d0a2d0b5d0bad181d1822c20d181d182d180d0bed0bad0b02c20d188d0b5d181d182d0b8d0b3d180d0b0d0bdd0bdd18bd0b92c20d0bad0bed0bdd0b2d0b5d180d182d0b5d180";
+string r;
+int k=strhextodec(CONVERT_T, s, #r);
+messagebox (r);
+r=utf8toansi (r);
+messagebox (r);
+Дробное в текст
+CODE:
+string s="Дробное 0x3FB3E975 равно 1.405562";//Равно числу 1.405562 (75 E9 B3 3F)
+string d;
+strhextodec(CONVERT_TD, s, "0x", #d);
+messagebox (d);
+CODE:
+string s="Дробное 3FB3E975h равно 1.405562";//Равно числу 1.405562 (75 E9 B3 3F)
+string d;
+strhextodec(CONVERT_TD, s, #d, "h");
+messagebox (d);
+CODE:
+string s="Дробное 3FB3E975";//Равно числу 1.405562 (75 E9 B3 3F)
+string d;
+strhextodec(CONVERT_TD, s, #d);
+messagebox (d);
+CODE:
+string s="Дробное ^'3FB3E975^'";//Равно числу 1.405562 (75 E9 B3 3F)
+string d;
+strhextodec(CONVERT_TD, s, "^'", #d, "^'");
+messagebox (d);
+Дробное в число
+CODE:
+string s="3FB3E975";//Равно числу 1.405562 (75 E9 B3 3F)
+double d;
+strhextodec(CONVERT_D, s, #d);
+messagebox (d);
+CODE:
+string s="0x3FB3E975";//Равно числу 1.405562 (75 E9 B3 3F)
+double d;
+strhextodec(CONVERT_D, s, "0x", #d);
+messagebox (d);
+UTF16 в текст:
+Участки записи UTF16 идентифицируются по переднему флагу:
+CODE:
+string A="Hello \u041f\u0440\u0438\u0432\u0435\u0442";
+string B;
+strhextodec(CONVERT_U16, A, "\u", #B);
+messagebox (B);
+Участки записи UTF16 идентифицируются по заднему флагу:
+CODE:
+string A="Hello 041f/U0440/U0438/U0432/U0435/U0442/U";
+string B;
+strhextodec(CONVERT_U16, A, #B, "/U");
+messagebox (B);
+Участки записи UTF16 идентифицируются по переднему и заднему флагу:
+CODE:
+string A="Текст \u041f/U\u0440/U\u0438/U\u0432/U\u0435/U\u0442/U";
+string B;
+strhextodec(CONVERT_U16, A, "\u", #B, "/U");
+messagebox (B);
+Участки записи UTF16 идентифицируются по совокупности символов участвующих в текстовом представление 16 ричной записи:
+CODE:
+string A="Текст П440и0432е0000442";
+string B;
+strhextodec(CONVERT_U16, A, #B);
+messagebox (B);
+Конвертация URL кодировки
+CODE:
+string s="URL encoding %D0%9A%D0%B8%D0%B1%D0%BE%D1%80+-+%D0%9F%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%D0%B8%D1%80%D1%83%D0%B5%D0%BC%D1%8B%D0%B9+%D0%BA%D0%BB%D0%B8%D0%BA%D0%B5%D1%80";
+string r;
+int k=strhextodec(CONVERT_T, s, "%", #r);
+messagebox (r);
+regexreplace(-1, #r, r, "+", " ");
+r=utf8toansi (r);
+messagebox (r);

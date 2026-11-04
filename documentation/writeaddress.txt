@@ -1,0 +1,35 @@
+﻿НАЗВАНИЕ: writeaddress
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=80
+
+writeaddress - записывает данные (int, double, string, char) по указанному адресу.
+Синтаксис
+CODE:
+char h[512];
+int adr=address(#h[27]);
+writeaddress(353545, adr);
+Запишет число 353545 по адресу adr.
+CODE:
+char h[512];
+int adr=address(#h[127]);
+writeaddress('a', adr);
+Запишет a по адресу adr.
+Удобно использовать для заполнения структур.
+Заполнение структуры для передачи в виде параметра в GetSaveFileNameA
+CODE:
+external(VOID, "GetSaveFile", "GetSaveFileNameA", "COMDLG32.DLL");
+char b[100];
+strcpy(#b[0], "Все файлы такого типа..");
+char a[76];
+for (int n=0; n<76; n++)a[n]=0;
+writeaddress(76, address(#a[0]));
+writeaddress(0, address(#a[4]));
+writeaddress(0, address(#a[8]));
+writeaddress(address(#b[0]), address(#a[12]));
+writeaddress(0, address(#a[16]));
+writeaddress(1634928, address(#a[20]));
+writeaddress(1000, address(#a[24]));
+writeaddress(0, address(#a[28]));
+writeaddress(0, address(#a[32]));
+writeaddress(0, address(#a[36]));
+writeaddress(6148, address(#a[40]));
+GetSaveFile(address(#a[0]));

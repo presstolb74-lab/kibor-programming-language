@@ -1,0 +1,106 @@
+﻿НАЗВАНИЕ: sendgetweb
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=120
+
+sendgetweb предназначен для отправки по протоколам HTTPS и HTTP запросов на сайт и получение ответа.
+Получает чистый код страницы без заголовка.
+Подходит для парсинга сайтов.
+Доступно 2 варианта функции sendgetweb. Коротая и длинная.
+Короткая не имеет параметров отправки заголовка, POST запроса и длины POST запроса.
+Длинная позволяет формировать заголовок, POST запрос и длину POST запроса.
+Не обязательным последним параметром можно указать время в милисекундах, после которого функция завершает работу при нерабочем подключение.
+Еще вариант более гибкий Использование API WinInet, подключая нужные функции
+Пример как скачать exe файл, сохранить его и запустить. Ссылка
+Ответ можно принимать в массив char или в string
+Функция возвращает количество принятых байт или -1 при ошибке.
+Если указан малый массив char для приема, запишется количество символов равное размеру массива char -1. Последний элемент массива запишется нулем, поэтому надо выделять размер массива хотя бы на 1 больше чем ожидаемое количество принимаемых символов.
+Если ответ приходит в формате UTF-8 и присутствуют русские символы в виде кракозябр, необходимо преобразовать формат в ANSI с помощью функции utf8toansi
+==========
+Использование прокси:
+Прокси указывается не обязательным первым параметром string
+Зайти на форум kibor-bot.com через прокси сервер IP 88.199.21.76 порт 80
+На kibor-bot.com будет IP прокси сервера 88.199.21.76
+Цитата:
+sendgetweb("88.199.21.76:80", #T[2], "", "GET", "https:/^/kibor-bot.com", "forum")
+Не использовать прокси
+Цитата:
+sendgetweb(#T[2], "", "GET", "https:/^/kibor-bot.com", "forum")
+Так же само с длинным вариантом sendgetweb
+Зайти и авторизоваться через прокси
+Цитата:
+sendgetweb("88.199.21.76:80", #C[0], "My bot", "POST", "https:/^/kibor-bot.com", "forum/loginout.php", Header, #POSTData[0], size(#POSTData[0]))
+Зайти под своим IP
+CODE:
+sendgetweb(#C[0], "My bot", "POST", "https:/^/kibor-bot.com", "forum/loginout.php", Header, #POSTData[0], size(#POSTData[0]))
+==========
+Примеры короткой
+CODE:
+string S;
+if (sendgetweb(#S, "My bot", "GET", "https:/^/kibor-bot.com", "forum")>0)
+{
+messagebox (S);
+}
+CODE:
+char C[100000];
+if (sendgetweb(#C[0], "My bot", "GET", "https:/"+"/www.google.com.ua", "search?source=hp&q=кибор")>0)
+{
+messagebox (format(#C[0]));
+}
+CODE:
+string S;
+if (sendgetweb(#S, "Mozilla/4.0 (compatible; MSIE 6.0b; Windows NT 5.0; .NET CLR 1.0.2914)", "GET", "https:/"+"/www.google.com.ua", "search?source=hp&q=кибор")>0)
+{
+messagebox (S);
+}
+CODE:
+string T[5];
+int k=sendgetweb(#T[2], "", "GET", "http:/"+"/kibor-bot.com", "");
+if (k>0)
+{
+messagebox (format(k)+" "+T[2]);
+}
+Первый параметр - указатель на массив char или string в который получим ответ
+Второй - строка имени программы которая посылает запрос. Можно представиться к примеру браузером ("Mozilla/4.0 (compatible; MSIE 6.0b; Windows NT 5.0; .NET CLR 1.0.2914)") или оставить пустой.
+Третий - тип запроса. Большими буквами.
+Четвертый - Домен с протоколом HTTPS или HTTP.
+Пятый - Тело запроса.
+Пример указания последнего параметра времени в милисекундах, после которого функция завершает работу при нерабочем подключение.
+Цитата:
+string S;
+if (sendgetweb(#S, "Mozilla/4.0 (compatible; MSIE 6.0b; Windows NT 5.0; .NET CLR 1.0.2914)", "GET", "https:/"+"/www.google.com.ua", "search?source=hp&q=кибор", 3000)>0)
+{
+messagebox (S);
+}
+Узнать свой IP с сайта https: // 2ip . ua
+CODE:
+char C[100000];
+if (sendgetweb(#C[0], "", "GET", "https:/"+"/2ip.ua", "")>0)
+{
+int nom, siz;
+if (findtext(#C[0], #nom, #siz, "</div><div class="+formatic(34)+"ip"+formatic(34)+">" & "<span class")>0)
+{
+messagebox("IP "+format(#C[nom], siz));
+}
+}
+Примеры длинной
+CODE:
+sendgetweb(#C[0], "My bot", "POST", "https:/"+"/kibor-bot.com", "forum/loginout.php", Header, #POSTData[0], size(#POSTData[0]))
+Header - Заголовок в string
+#POSTData[0] - указатель на массив char, с котором находится POST запрос
+size(#POSTData[0]) - Целое число. Длина POST запроса. При наличие нулей надо указывать числом.
+Пример авторизации на сайте(для просмотра ссылки Вам необходимо авторизоваться) В коде страницы вы увидите текст Здравствуйте Test_Kibor
+И внизу форума на главной странице увидите посетителя Test_Kibor
+CODE:
+string Header="Content-Type: application/x-www-form-urlencoded";
+char POSTData[1000];
+strcpy(#POSTData[0], "action=login&imembername=Test_Kibor&ipassword=Test_Kibor_qwert&submit=%C2%F5%EE%E4");//Пост запрос
+char C[100000];
+if (sendgetweb(#C[0], "My bot", "POST", "https:/^/kibor-bot.com", "forum/loginout.php", Header, #POSTData[0], size(#POSTData[0]))>0)
+{
+messagebox (format(#C[0]));
+if (fopen (tempfolder()+"5.txt", "w")!=0)
+{//если открылся
+fwrite(format(#C[0]));
+fclose();//закрываем файл
+}
+start(tempfolder()+"5.txt");
+}

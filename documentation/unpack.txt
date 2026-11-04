@@ -1,0 +1,289 @@
+﻿НАЗВАНИЕ: unpack
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=62
+
+Добавлен блок RESOURCE, в котором можно указывать файлы, которые при создание exe упакуются в ресурсы. В ресурсы можно упаковывать абсолютно все файлы, изображения, Длл, данные и даже другие запускные файлы, которые при необходимости можно распаковать и запустить.
+синтаксис
+CODE:
+RESOURCE
+{
+//тут добавить нужные файлы, которые при генерирование exe добавятся в его ресурсы
+"C:\images0.bmp"; "D:\aa\not.txt";
+"C:\Windows\system32\calc.exe";
+}
+в блоке RESOURCE не допускаются переменные. только пути к файлам в кавычках. Не делайте длинный пути!
+Данные файлы присоединяются к созданному EXE и могут быть извлечены и использованны при необходимости.
+Для распаковки необходимого файла вызывается функция
+unpack("C:\Windows\system32\calc.exe", "C:\c.exe", 1);
+первый параметр - строка или переменная string в которой содержится путь к файлу каким он прописан в блоке RESOURCE. Этот параметр указывает какой файл извлекаем из ресурсов.
+второй - строка или переменная string в которой содержится путь куда запишем файл.
+третий параметр 0 или 1
+0 - не заменять если есть..
+1 - заменять.
+возвращает 1 при удачной записи - замене.
+0 при не замене так как есть и последний параметр 0.
+меньше 0 при неудаче.
+пример
+Цитата:
+int b[200][200];
+if (unpack("C:\images.bmp", tempfolder()+"1.bmp", 1)>-1)
+{
+loadimage (#b[0][0], tempfolder()+"1.bmp");
+}
+if (unpack("C:\Windows\system32\calc.exe", pathfolder()+"c.exe", 0)>-1)
+{
+start(pathfolder()+"c.exe");
+}
+RESOURCE
+{
+"C:\images.bmp";
+"C:\Windows\system32\calc.exe";
+}
+При отработке скрипт с Кибор, не собирая в запускной файл unpack просто копирует файл с папки первого параметра, так как в Кибор нет этого ресурса.
+Так же можно загрузить файл с ресурса в массив char без  распаковки   ресурса файл обозначенный "C:\images.bmp" в блоке RESOURCE
+Цитата:
+char buf[1000000];
+resource(#buf[0], "C:\images.bmp"); //загружает в массив buf ресурс
+RESOURCE
+{
+"C:\images.bmp";
+}
+Возвращает количество загруженных байт.
+пример как загружать рисунки с помощью resource прямо с ресурса http://kibor-bot.com/forum/topic...83929#1426083929
+В максимальной версии количество упаковываемых файлов не ограничено. Иначе допускается не более пяти файлов.
+Нажмите для увеличения
+============================================================
+Добавлены функции получения пути к программе и к папке Темп.
+pathfolder() - возвращает string типа "C:\Program Files (x86)\Kibor\"
+tempfolder() - возвращает string.. путь к временной папке.
+=======================================
+Для теста распаковки в папку темп можно скачать этот файл
+http://kibor-bot.com/files/test_RESOURCE.rar
+В нем 41 рисунок и 1 аудио файл.
+распаковка в папку темп этих файлов, загрузка в loadimage и включение музыки занимает менее 50 мсек... с пере сохранением, saveimage в папку программы уже после загрузки loadimage 80 мсек..
+говорить о каких то задержках не приходится..
+код программы
+Цитата:
+int zv_vbor[41][40];
+int karta1[6][6];
+int radiaciya[15][12];
+int skil_s1[30][18];
+int skil_s2[30][18];
+int skil_s3[30][18];
+int skil_s4[30][18];
+int karta[25][32];
+int skil[38][38];
+int gru[15][8];
+int rem[13][9];
+int xp_moi[2][4];
+int xp_moi_inv[2][4];
+int koord_ch[11][12][12];
+int porti[9][9];
+int kart_open[20][11];
+int baza[7][7];
+int baza1[7][7];
+int baza2[7][7];
+int soedi[53][7];
+int fishka[16][13];
+int port_beg[4][11];
+int porti[9][9];
+int knt[7][7];
+int targ[7][29][11];
+int teleportir[67][8];
+string temp_fold;
+string path_fold=pathfolder();
+int tim=gettime();
+unpack("C:\images\0.bmp", temp_fold+"0.bmp", 1);
+unpack("C:\images\1.bmp", temp_fold+"1.bmp", 1);
+unpack("C:\images\2.bmp", temp_fold+"2.bmp", 1);
+unpack("C:\images\3.bmp", temp_fold+"3.bmp", 1);
+unpack("C:\images\4.bmp", temp_fold+"4.bmp", 1);
+unpack("C:\images\5.bmp", temp_fold+"5.bmp", 1);
+unpack("C:\images\6.bmp", temp_fold+"6.bmp", 1);
+unpack("C:\images\7.bmp", temp_fold+"7.bmp", 1);
+unpack("C:\images\8.bmp", temp_fold+"8.bmp", 1);
+unpack("C:\images\9.bmp", temp_fold+"9.bmp", 1);
+unpack("C:\images\10.bmp", temp_fold+"10.bmp", 1);
+unpack("C:\images\baza.bmp", temp_fold+"baza.bmp", 1);
+unpack("C:\images\baza1.bmp", temp_fold+"baza1.bmp", 1);
+unpack("C:\images\baza2.bmp", temp_fold+"baza2.bmp", 1);
+unpack("C:\images\fishka.bmp", temp_fold+"fishka.bmp", 1);
+unpack("C:\images\gru.bmp", temp_fold+"gru.bmp", 1);
+unpack("C:\images\karta.bmp", temp_fold+"karta.bmp", 1);
+unpack("C:\images\karta1.bmp", temp_fold+"karta1.bmp", 1);
+unpack("C:\images\kart_open.bmp", temp_fold+"kart_open.bmp", 1);
+unpack("C:\images\knt.bmp", temp_fold+"knt.bmp", 1);
+unpack("C:\images\porti.bmp", temp_fold+"porti.bmp", 1);
+unpack("C:\images\port_beg.bmp", temp_fold+"port_beg.bmp", 1);
+unpack("C:\images\radiaciya.bmp", temp_fold+"radiaciya.bmp", 1);
+unpack("C:\images\rem.bmp", temp_fold+"rem.bmp", 1);
+unpack("C:\images\skil.bmp", temp_fold+"skil.bmp", 1);
+unpack("C:\images\skil_s1.bmp", temp_fold+"skil_s1.bmp", 1);
+unpack("C:\images\skil_s2.bmp", temp_fold+"skil_s2.bmp", 1);
+unpack("C:\images\skil_s3.bmp", temp_fold+"skil_s3.bmp", 1);
+unpack("C:\images\skil_s4.bmp", temp_fold+"skil_s4.bmp", 1);
+unpack("C:\images\soedi.bmp", temp_fold+"soedi.bmp", 1);
+unpack("C:\images\targ1.bmp", temp_fold+"targ1.bmp", 1);
+unpack("C:\images\targ2.bmp", temp_fold+"targ2.bmp", 1);
+unpack("C:\images\targ3.bmp", temp_fold+"targ3.bmp", 1);
+unpack("C:\images\targ4.bmp", temp_fold+"targ4.bmp", 1);
+unpack("C:\images\targ5.bmp", temp_fold+"targ5.bmp", 1);
+unpack("C:\images\targ6.bmp", temp_fold+"targ6.bmp", 1);
+unpack("C:\images\targ7.bmp", temp_fold+"targ7.bmp", 1);
+unpack("C:\images\teleportir.bmp", temp_fold+"teleportir.bmp", 1);
+unpack("C:\images\xp_moi.bmp", temp_fold+"xp_moi.bmp", 1);
+unpack("C:\images\xp_moi_inv.bmp", temp_fold+"xp_moi_inv.bmp", 1);
+unpack("C:\images\zv_vbor.bmp", temp_fold+"zv_vbor.bmp", 1);
+loadimage(#koord_ch[0][0][0], temp_fold+"0.bmp");
+loadimage(#koord_ch[1][0][0], temp_fold+"1.bmp");
+loadimage(#koord_ch[2][0][0], temp_fold+"2.bmp");
+loadimage(#koord_ch[3][0][0], temp_fold+"3.bmp");
+loadimage(#koord_ch[4][0][0], temp_fold+"4.bmp");
+loadimage(#koord_ch[5][0][0], temp_fold+"5.bmp");
+loadimage(#koord_ch[6][0][0], temp_fold+"6.bmp");
+loadimage(#koord_ch[7][0][0], temp_fold+"7.bmp");
+loadimage(#koord_ch[8][0][0], temp_fold+"8.bmp");
+loadimage(#koord_ch[9][0][0], temp_fold+"9.bmp");
+loadimage(#koord_ch[10][0][0], temp_fold+"10.bmp");
+loadimage(#baza[0][0], temp_fold+"baza.bmp");
+loadimage(#baza1[0][0], temp_fold+"baza1.bmp");
+loadimage(#baza2[0][0], temp_fold+"baza2.bmp");
+loadimage(#fishka[0][0], temp_fold+"fishka.bmp");
+loadimage(#gru[0][0], temp_fold+"gru.bmp");
+loadimage(#karta[0][0], temp_fold+"karta.bmp");
+loadimage(#karta1[0][0], temp_fold+"karta1.bmp");
+loadimage(#kart_open[0][0], temp_fold+"kart_open.bmp");
+loadimage(#knt[0][0], temp_fold+"knt.bmp");
+loadimage(#porti[0][0], temp_fold+"porti.bmp");
+loadimage(#port_beg[0][0], temp_fold+"port_beg.bmp");
+loadimage(#radiaciya[0][0], temp_fold+"radiaciya.bmp");
+loadimage(#rem[0][0], temp_fold+"rem.bmp");
+loadimage(#skil[0][0], temp_fold+"skil.bmp");
+loadimage(#skil_s1[0][0], temp_fold+"skil_s1.bmp");
+loadimage(#skil_s2[0][0], temp_fold+"skil_s2.bmp");
+loadimage(#skil_s3[0][0], temp_fold+"skil_s3.bmp");
+loadimage(#skil_s4[0][0], temp_fold+"skil_s4.bmp");
+loadimage(#soedi[0][0], temp_fold+"soedi.bmp");
+loadimage(#targ[0][0][0], temp_fold+"targ1.bmp");
+loadimage(#targ[1][0][0], temp_fold+"targ2.bmp");
+loadimage(#targ[2][0][0], temp_fold+"targ3.bmp");
+loadimage(#targ[3][0][0], temp_fold+"targ4.bmp");
+loadimage(#targ[4][0][0], temp_fold+"targ5.bmp");
+loadimage(#targ[5][0][0], temp_fold+"targ6.bmp");
+loadimage(#targ[6][0][0], temp_fold+"targ7.bmp");
+loadimage(#teleportir[0][0], temp_fold+"teleportir.bmp");
+loadimage(#xp_moi[0][0], temp_fold+"xp_moi.bmp");
+loadimage(#xp_moi_inv[0][0], temp_fold+"xp_moi_inv.bmp");
+loadimage(#zv_vbor[0][0], temp_fold+"zv_vbor.bmp");
+if (getcontrol(CHECK_0)==1)
+{
+saveimage(#koord_ch[0][0][0], path_fold+"0.bmp");
+saveimage(#koord_ch[1][0][0], path_fold+"1.bmp");
+saveimage(#koord_ch[10][0][0], path_fold+"10.bmp");
+saveimage(#koord_ch[2][0][0], path_fold+"2.bmp");
+saveimage(#koord_ch[3][0][0], path_fold+"3.bmp");
+saveimage(#koord_ch[4][0][0], path_fold+"4.bmp");
+saveimage(#koord_ch[5][0][0], path_fold+"5.bmp");
+saveimage(#koord_ch[6][0][0], path_fold+"6.bmp");
+saveimage(#koord_ch[7][0][0], path_fold+"7.bmp");
+saveimage(#koord_ch[8][0][0], path_fold+"8.bmp");
+saveimage(#koord_ch[9][0][0], path_fold+"9.bmp");
+saveimage(#baza[0][0], path_fold+"baza.bmp");
+saveimage(#baza1[0][0], path_fold+"baza1.bmp");
+saveimage(#baza2[0][0], path_fold+"baza2.bmp");
+saveimage(#fishka[0][0], path_fold+"fishka.bmp");
+saveimage(#gru[0][0], path_fold+"gru.bmp");
+saveimage(#karta[0][0], path_fold+"karta.bmp");
+saveimage(#karta1[0][0], path_fold+"karta1.bmp");
+saveimage(#kart_open[0][0], path_fold+"kart_open.bmp");
+saveimage(#knt[0][0], path_fold+"knt.bmp");
+saveimage(#porti[0][0], path_fold+"porti.bmp");
+saveimage(#port_beg[0][0], path_fold+"port_beg.bmp");
+saveimage(#radiaciya[0][0], path_fold+"radiaciya.bmp");
+saveimage(#rem[0][0], path_fold+"rem.bmp");
+saveimage(#skil[0][0], path_fold+"skil.bmp");
+saveimage(#skil_s1[0][0], path_fold+"skil_s1.bmp");
+saveimage(#skil_s2[0][0], path_fold+"skil_s2.bmp");
+saveimage(#skil_s3[0][0], path_fold+"skil_s3.bmp");
+saveimage(#skil_s4[0][0], path_fold+"skil_s4.bmp");
+saveimage(#soedi[0][0], path_fold+"soedi.bmp");
+saveimage(#targ[0][0][0], path_fold+"targ1.bmp");
+saveimage(#targ[1][0][0], path_fold+"targ2.bmp");
+saveimage(#targ[2][0][0], path_fold+"targ3.bmp");
+saveimage(#targ[3][0][0], path_fold+"targ4.bmp");
+saveimage(#targ[4][0][0], path_fold+"targ5.bmp");
+saveimage(#targ[5][0][0], path_fold+"targ6.bmp");
+saveimage(#targ[6][0][0], path_fold+"targ7.bmp");
+saveimage(#teleportir[0][0], path_fold+"teleportir.bmp");
+saveimage(#xp_moi[0][0], path_fold+"xp_moi.bmp");
+saveimage(#xp_moi_inv[0][0], path_fold+"xp_moi_inv.bmp");
+saveimage(#zv_vbor[0][0], path_fold+"zv_vbor.bmp");
+messagebox ("Распаковка в папку темп и загрузка loadimage всех рисунков и пересохранение их заняло "+format(gettime()-tim)+" мсек.");
+}
+else messagebox ("Распаковка в папку темп и загрузка loadimage всех рисунков заняло "+format(gettime()-tim)+" мсек.");
+RESOURCE
+{
+"C:\images\0.bmp";
+"C:\images\1.bmp";
+"C:\images\10.bmp";
+"C:\images\2.bmp";
+"C:\images\3.bmp";
+"C:\images\4.bmp";
+"C:\images\5.bmp";
+"C:\images\6.bmp";
+"C:\images\7.bmp";
+"C:\images\8.bmp";
+"C:\images\9.bmp";
+"C:\images\baza.bmp";
+"C:\images\baza1.bmp";
+"C:\images\baza2.bmp";
+"C:\images\fishka.bmp";
+"C:\images\gru.bmp";
+"C:\images\karta.bmp";
+"C:\images\karta1.bmp";
+"C:\images\kart_open.bmp";
+"C:\images\knt.bmp";
+"C:\images\porti.bmp";
+"C:\images\port_beg.bmp";
+"C:\images\radiaciya.bmp";
+"C:\images\rem.bmp";
+"C:\images\skil.bmp";
+"C:\images\skil_s1.bmp";
+"C:\images\skil_s2.bmp";
+"C:\images\skil_s3.bmp";
+"C:\images\skil_s4.bmp";
+"C:\images\soedi.bmp";
+"C:\images\targ1.bmp";
+"C:\images\targ2.bmp";
+"C:\images\targ3.bmp";
+"C:\images\targ4.bmp";
+"C:\images\targ5.bmp";
+"C:\images\targ6.bmp";
+"C:\images\targ7.bmp";
+"C:\images\teleportir.bmp";
+"C:\images\xp_moi.bmp";
+"C:\images\xp_moi_inv.bmp";
+"C:\images\zv_vbor.bmp";
+"C:\club.wav";
+}
+INITDIALOG
+{
+temp_fold=tempfolder();
+unpack("C:\club.wav", temp_fold+"club.wav", 1);
+sound (temp_fold+"club.wav", 1);
+}
+CREATE_INTERFACE
+{
+DIALOG "тест unpack" 437 100
+BUTTONSCRIPT "Запустить" 15 41 400 25
+CHECK_0 0 "После распаковки и загрузки пересохранить в папку программы" 10 10 355 18
+}
+Пример создания папки в директории программы и распаковка в нее
+Цитата:
+string pt=pathfolder();
+external(INT, "CreateDirectory", "CreateDirectoryA", "kernel32.dll");
+CreateDirectory(pt+"res", 0);
+unpack("C:\bot\Image_0.bmp", pt+"res\Image_0.bmp", 1);
+RESOURCE
+{
+"C:\bot\Image_0.bmp";
+}

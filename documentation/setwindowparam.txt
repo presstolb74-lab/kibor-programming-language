@@ -1,0 +1,31 @@
+﻿НАЗВАНИЕ: setwindowparam
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=130
+
+setwindowparam позволяет обновить структуру win
+wind.width = ширина окна
+wind.height = высота окна
+wind.left = позиция по x относительно левого края экрана
+wind.top = позиция по y относительно левого края экрана
+wind.widthclient = ширина клиетской части окна (без системного меню и рамки)
+wind.heightclient = высота клиетской части окна (без системного меню и рамки)
+wind.leftclient = позиция клиетской части по x относительно левого края экрана
+wind.topclient = позиция клиетской части по y относительно левого края экрана
+wind.name = название окна
+wind.class = название класса
+==============
+Может использоваться для заполнение данной структуры если указатель win получен с помощью функции formatiw и не была заполнена ранее.
+==============
+Синтаксис:
+CODE:
+setwindowparam(wind);
+Параметром принимает указатель win
+Возвращает 1 если окно есть.
+0 если его нет.
+==============
+Пример:
+CODE:
+external(INT, "FindWindowEx", "FindWindowExA", "user32.dll");
+int handle=FindWindowEx(0, 0, "Notepad", "Безымянный — Блокнот");
+win w=formatiw(handle);
+setwindowparam(w);
+messagebox (w.leftclient);

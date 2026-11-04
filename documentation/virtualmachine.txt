@@ -1,0 +1,21 @@
+﻿НАЗВАНИЕ: virtualmachine
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=162
+
+virtualmachine определяет запущен ли скрипт на виртуальной машине.
+Синтаксис:
+CODE:
+virtualmachine();
+Возвращает 1 если запуск на виртуальной машине.
+0 если нет.
+Пример:
+CODE:
+if (virtualmachine())
+{
+messagebox ("Виртуальная машина");
+}
+else
+{
+messagebox ("Нет");
+}
+Протестировано только на VMware и VirtualBox
+Проверяйте на других.
