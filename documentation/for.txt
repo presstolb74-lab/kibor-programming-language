@@ -1,0 +1,22 @@
+﻿НАЗВАНИЕ: for
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=41
+
+Добавлен оператор for
+Назначение - организация циклов с проверкой условия
+CODE:
+for (int a=0; a<5; a++)
+{
+messagebox ("цикл");
+}
+Пример как ожидать в цикле появление изображения на экране 5 секунд. Если изображения не появилось - выйти из цикла.
+CODE:
+for (int t=gettime(); gettime()-t<5000; sleep(20))
+{
+if (findimage(1, #Image[0][0], 0, #PosX, #PosY, 0, 0, 1366, 768, -1)==1)
+{
+messagebox ("нашлося...");
+goto q;
+}
+}
+messagebox ("не...");
+q:;

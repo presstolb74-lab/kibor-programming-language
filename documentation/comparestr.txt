@@ -1,0 +1,78 @@
+﻿НАЗВАНИЕ: comparestr
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=160
+
+comparestr Позволяет сравнить между собой 2 строки и выдать оценку схожести по содержимому. По результату выполнения схожа с функцией SequenceMatcher Python, но немного отличается оценка. Однако результат работы может с не меньшим успехом быть использован для тех же целей.
+используется алгоритм Расстояние Дамерау — Левенштейна
+Первое применение - возвращает оценку сравнения
+Второе применение дает возможность вести проверку и выбор наиболее близкой строки с массива string
+=================================================
+Первое применение - возвращает оценку сравнения
+Синтаксис:
+CODE:
+double t=comparestr("машина", "мякиш");
+messagebox (t);
+В виде параметров принимает сравниваемые строки.
+Возвращает положительное дробное число до 1.
+1 возвращается при полном совпадение.
+Чем число меньше - тем меньше совпадений.
+Пример:
+CODE:
+string all_string[7]={"junior", "working", "recognition", "with", "violet", "interest", "renewal"}
+messagebox ("корявое junlor = точое "+compare("junlor"));//Узнаем каккое слово близкое к корявому junlor
+messagebox ("корявое worklng = точое "+compare("worklng"));//Узнаем каккое слово близкое к корявому worklng
+messagebox ("корявое recognjtion = точое "+compare("recognjtion"));//Узнаем каккое слово близкое к корявому recognjtion
+messagebox ("корявое recognllltjon точое = "+compare("recognllltjon"));//Узнаем каккое слово близкое к корявому recognllltjon
+messagebox ("корявое lnterest = точое "+compare("lnterest"));//Узнаем каккое слово близкое к корявому lnterest
+messagebox ("корявое vlolet = точое "+compare("vlolet"));//Узнаем каккое слово близкое к корявому vlolet
+messagebox ("а на что похоже это? ietsert = точое "+compare("ietsert"));//Узнаем каккое слово близкое к корявому ietsert
+function compare(string A)
+{
+double t, max=-1;
+int i=0;
+for (int n=0; n<sizearray(all_string); n++)
+{
+t=comparestr(A, all_string[n]);
+if (t>max)
+{
+max=t;
+i=n;
+}
+}
+return all_string[i];
+}
+=============================
+Второе применение дает возможность вести проверку и выбор наиболее близкой строки с массива string
+Синтаксис:
+CODE:
+comparestr("viot", 0.5, #all_string[0], 7);
+Первый параметр - строка которую сравнивает
+Второй - Оценка от 0 до 1 включительно, менее или равно которой слово заменено не будет.
+Третий параметр - указатель на массив string в котором записаны строки с которыми будем сравнивать
+Четвертый параметр - количество элементов массива с которыми будем сравнивать начиная с указателя
+Возвращает наиболее близкую строку с массива.
+Пример
+CODE:
+string all_string[7]={"junior", "working", "recognition", "with", "violet", "interest", "renewal"}
+messagebox (comparestr("viot", 0.5, #all_string[0], sizearray(all_string)));
+Выведет violet
+=========================
+Можно использовать двойной массив данных.
+Пример
+CODE:
+string all_string[2][3];
+all_string[0][0]="junior";
+all_string[0][1]="valet";
+all_string[0][2]="recognition";
+all_string[1][0]="with";
+all_string[1][1]="violet";
+all_string[1][2]="interest";
+messagebox (comparestr("viot", 0.2, #all_string[0][0], sizearray(all_string[])));
+messagebox (comparestr("viot", 0.2, #all_string[1][0], sizearray(all_string[])));
+============================
+Последним, не обязательным параметром можно указать Указатель на int, в который запишется индекс совпавшего слова в массиве. Или -1 если оценка менее указанной и ничего не совпало.
+Пример
+CODE:
+string all_string[7]={"junior", "working", "recognition", "with", "violet", "interest", "renewal"}
+int n;
+messagebox (comparestr("viot", 0.5, #all_string[0], sizearray(all_string), #n));
+messagebox (n);

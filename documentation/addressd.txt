@@ -1,0 +1,150 @@
+﻿НАЗВАНИЕ: addressd
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=74&postid=1439238107#1439238107
+
+Появилась возможность подключения внешних DLL и вызов со скрипта их функций.
+Подключать можно как и свои библиотеки, так и любые стандартные используя после этого Win API при написание скриптов в Кибор.
+Это существенно расширяет круг решаемых в Кибор задач, так как становятся доступные практически все Api которое можно использовать прямо программируя в Кибор и часть программы можно написать на любом языке и скомпилировать в Dll, которую можно потом подключить в скрипте и использовать.
+Свою Dll можно упаковать в ресурсы собранного exe и тогда не придется ее распространять отдельно вместе с программой.
+external(INT, "my_message", "MessageBoxA", "user32.dll");//Получение указателя на функцию MessageBoxA
+Подключает user32.dll, получает указатель на Api функцию MessageBoxA, указывает что в скрипте мы ее будем вызывать по символическому имени my_message и возвращать эта функция будет тип int
+Функция возвращает дескриптор загруженного DLL модуля, по которому можно можно выгрузить эту DLL с помощью freelibrary.
+Внимание! Выгрузка определенного DLL приведет к недоступности всех функций загруженных с DLL с этим именем!
+ВНИМАНИЕ! Данные функции вызываются ОДИН раз в начале скрипта! Не надо их вызывать при каждом действие с подключаемой функцией! Это ничего не даст. Просто Кибор будет игнорировать эти команды, до того пока эта DLL не будет выгружена с помощью freelibrary.
+Пример создания и подключение своего диалогового окна созданного в Visual Studio
+Открытие ссылки
+CODE:
+external(INT, "ShellExecute", "ShellExecuteA", "Shell32.dll");
+ShellExecute(0, "Open", "http:/^/kibor-bot.com/education-kibor.php", 0, "", 61728);
+Создание папки..
+CODE:
+external(INT, "CreateDirectory", "CreateDirectoryA", "kernel32.dll");
+CreateDirectory("C:\mu_fol", 0);
+удаление файла
+CODE:
+external(INT, "DeleteFile", "DeleteFileA", "kernel32.dll");
+DeleteFile("C:\ttt.txt");
+переименовать
+CODE:
+external(INT, "MoveFile", "MoveFileA", "kernel32.dll");
+MoveFile("C:\Этот_переименовать.txt", "C:\В_этот.txt");
+Прокрутка  ролика мышки
+CODE:
+external(VOID, "mouse_event", "mouse_event", "user32.dll");
+mouse_event(2048, 0, 0, -500, 0);
+Перемещаем папку 5 с папки 1 в 2
+CODE:
+external(VOID, "MoveFile", "MoveFileA", "kernel32.dll");
+MoveFile("C:\Новая папка\1\5", "C:\Новая папка\2\5");
+Одновременное проигрывание wav или mp3 файлов
+CODE:
+external (INT, "mciSendString", "mciSendStringA", "Winmm.dll");
+mciSendString("open C:\1\b.wav", 0, 1, 0);//Длинный
+mciSendString("open C:\1\h.wav", 0, 1, 0);//Короткий
+loop()
+{
+mciSendString("play C:\1\b.wav", 0, 1, 0);
+loop(20)
+{
+mciSendString("play C:\1\h.wav", 0, 1, 0);
+sleep(100);
+mciSendString("close C:\1\h.wav", 0,1, 0);
+}
+mciSendString("close C:\1\b.wav", 0,1, 0);
+}
+Зацикливание проигрывания
+CODE:
+external (INT, "mciSendString", "mciSendStringA", "Winmm.dll");
+char SST[256];
+int adr=address(#SST[0]);
+mciSendString("open C:\1\b.wav", 0, 1, 0);
+loop()
+{
+mciSendString("play C:\1\b.wav", 0, 1, 0);
+mciSendString("status C:\1\b.wav mode", adr, 256, 0);
+while(format(#SST[0])=="playing")mciSendString("status C:\1\b.wav mode", adr, 256, 0);
+mciSendString("close C:\1\b.wav", 0,1, 0);
+messagebox ("Усе. Можно сначала");//Закоментировать для зацикливания
+}
+Первый параметр INT DOUBLE STRING CHAR VOID. Что возвращает функция. VOID говорит о том что функция не возвращает ничего.
+Второй - символическое имя по которомы мы будем юзать эту функцию в скрипте.
+Третий - Оригинальное название функции в библиотеке
+Четвертый - подключаемая библиотека.
+Пример использования Api в скрипте и перенос части кода в внешнюю свою Dll, которую запаковали в ресурс собранного exe. Скачать собранный EXE с запакованной в него Dll, которая распакуется при первом запуске в папку программы http://kibor-bot.com/files/KiborDll.rar
+Цитата:
+unpack("C:\MuDll.dll", pathfolder()+"MuDll.dll", 0);//Распакуем свою Dll с ресурсов в папку программы
+//Это подключение тандартных динамически компонуемых библиотек (user32.dll, kernel32.dll и тд) для работы с Win API
+external(INT, "my_message", "MessageBoxA", "user32.dll");//Получение указателя на функцию MessageBoxA
+external(VOID, "my_exit", "ExitProcess", "kernel32.dll");//Получение указателя на функцию ExitProcess
+//Это подключение своих Dll которые должны быть в папке с программой. Все тоже самое.
+external(INT, "my_add", "Add", "MuDll.dll");//Получение указателя на функцию Add
+external(VOID, "my_pisk", "DllCod", "MuDll.dll");//Получение указателя на функцию DllCod
+//После подключения Dll и определения адресов вызываемый функций (третий параметр) с Dll их можно вызывать с Кибор по указанному нами во втором параметре имени.
+messagebox ("сумма 57+7="+format(my_add(57, 7)));//Вызываем функцию Add со своей Dll
+char c[250];
+strcpy(#c[0], "Этот код работает с DLL. Текст передали в параметре функции.");
+my_pisk(2000, 1000, address(#c[0]));//Вызываем функцию DllCod со своей Dll
+//Тут используем в скрипте вызов Api функций с user32.dll и kernel32.dll
+int a;
+s: a=my_message(0, "Закрыть программу??????", "Заголовок", 6);//Вызовем MessageBoxA с user32.dll
+if (a==10)goto s;
+if (a==11)my_exit(0);//Вызовем ExitProcess с kernel32.dll
+RESOURCE
+{
+"C:\MuDll.dll"//Запакуем свою DLL в ресурсы собранного exe
+}
+а это код самой MuDll.dll
+Цитата:
+#include < windows.h >
+extern "C" __declspec(dllexport)int Add(int i1, int i2)
+{
+return i1+i2;
+}
+extern "C" __declspec(dllexport)void DllCod(int p1, int p2, char* c)
+{
+Beep(p1,p2);
+MessageBox (0, c, "Окно с DLL", 0);
+}
+=====================================================
+Заполнение структуры для передачи в виде параметра в GetSaveFileNameA.. Используется COMDLG32.
+CODE:
+external(VOID, "GetSaveFile", "GetSaveFileNameA", "COMDLG32.DLL");
+char b[100];
+strcpy(#b[0], "файл");
+char f[256];
+for (int n=0; n<256; n++)f[n]=0;
+char a[77];
+for (n=0; n<77; n++)a[n]=0;
+writeaddress(76, address(#a[0]));
+writeaddress(0, address(#a[4]));
+writeaddress(0, address(#a[8]));
+writeaddress(address(#b[0]), address(#a[12]));
+writeaddress(0, address(#a[16]));
+writeaddress(1634928, address(#a[20]));
+writeaddress(1000, address(#a[24]));
+writeaddress(0, address(#a[28]));
+writeaddress(0, address(#a[32]));
+writeaddress(address(#f[0]), address(#a[36]));
+writeaddress(6148, address(#a[40]));
+GetSaveFile(address(#a[0]));
+messagebox (format(#f[0]));
+Выбрать файл для его открытия
+CODE:
+external(VOID, "GetOpenFileName", "GetOpenFileNameA", "COMDLG32.DLL");
+char b[512];
+b[0]=formatic(0);
+char a[77];
+for (int n=0; n<77; n++)a[n]=0;
+writeaddress(76, address(#a[0]));
+writeaddress(0, address(#a[4]));
+writeaddress(0, address(#a[8]));
+writeaddress(0, address(#a[12]));
+writeaddress(0, address(#a[16]));
+writeaddress(1634928, address(#a[20]));
+writeaddress(1000, address(#a[24]));
+writeaddress(address(#b[0]), address(#a[28]));
+writeaddress(512, address(#a[32]));
+writeaddress(0, address(#a[36]));
+writeaddress(6148, address(#a[40]));
+GetOpenFileName(address(#a[0]));
+messagebox(format(#b[0]));
+Главная проблема правильно заполнить структуру, указатель на которую надо передать в виде параметра функции..

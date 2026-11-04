@@ -1,0 +1,128 @@
+﻿НАЗВАНИЕ: enablelistenport
+ИСТОЧНИК: http://kibor-bot.com/forum/topic.php?forum=1&topic=69
+
+Дополнительные функции обмена данными позволяют настраивать соединение между программами Кибор или собранными EXE по схеме клиент - сервер или  клиент  - сервер - клиент.
+Возможно соединение программ на одном компьютере, в одной посети и при наличие выделенного ip у машины на которой стоит серверная программа через интернет без промежуточного сервера.
+если необходимо связаться с программой в сети интернет и нет выделенного IP необходимо использовать эти функции Обмен данными, контроль и управление другой программой по сети интернет.
+Для создания сервера использовать функции
+enablelistenport - включить прослушку порта
+recvport - начали слушать. в отдельном потоке.
+sendport - при получение сообщения в функции recvport можно ответить этой функцией
+disablelistenport - отключить прослушку
+синтаксис
+Цитата:
+enablelistenport (10005);//включили прослушку 10005 порта (самому выбирать порт. должен совпадать с клиентским)
+вернет больше 1 при удаче.
+Цитата:
+char recvs[256];//массив в который принимаем
+int flag_recv=0;// это флаг в котором будет 1 когда на сервер придет сообщение.
+recvport (#recvs[0], 256, #flag_recv);//начали слушать. в отдельном потоке
+вернет более 1 при удаче
+Цитата:
+char sends[256];//массив который передаем
+sendport (#sends[0], 256);//ответ клиенту. только если есть сообщение использовать.
+вернет более 1 при удаче
+Цитата:
+disablelistenport(); //  при необходимости отключаем прослушку
+узнать ip подсети можно набрав на машине сервера в пуск - выполнить - cmd /k ipconfig /all
+ip надо указать в клиенте.
+Нажмите для увеличения
+пример программ клиент сервер
+не забываем разрешать в брандмауэре
+сервер
+Цитата:
+///////диалог
+int pos_size_edit0[2][4];
+string text_edit0[2];
+int pos_size_static0[2][4];
+string text_static0[2];
+pos_size_edit0[0][0]=110; pos_size_edit0[0][1]=10; pos_size_edit0[0][2]=218; pos_size_edit0[0][3]=20;
+pos_size_edit0[1][0]=177; pos_size_edit0[1][1]=52; pos_size_edit0[1][2]=152; pos_size_edit0[1][3]=20;
+text_edit0[0]=""; text_edit0[1]="О сервера клиенту мегаса";
+pos_size_static0[0][0]=16; pos_size_static0[0][1]=14; pos_size_static0[0][2]=80; pos_size_static0[0][3]=20;
+pos_size_static0[1][0]=17; pos_size_static0[1][1]=55; pos_size_static0[1][2]=150; pos_size_static0[1][3]=20;
+text_static0[0]="Сервер принял"; text_static0[1]="При приеме ответит клиенту";
+createdialog(0, EDIT, #pos_size_edit0[0][0], #text_edit0[0] |
+STATIC, #pos_size_static0[0][0], #text_static0[0]);
+showdialog(0, "Сервер", 150, 200, 347, 117, 1, 1);
+////////сам сервер
+char recvs[256];//массив в который принимаем
+char sends[256];//массив который передаем
+int flag_recv=0;// это флаг в котором будет 1 когда на сервер придет сообщение
+enablelistenport (10005);//включили прослушку 10005 порта (самому выбирать)
+recvport (#recvs[0], 256, #flag_recv);//начали слушать. в отдельном потоке
+enabletimer(0);//включили таймер
+loop()//цикл бота
+{
+beep(2000, 70);
+mu_pause  (1000);
+}
+function mu_pause(int p)//реализация паузы что бы не зависал на время ее скрипт
+{
+for (int t=gettime(); gettime()-t<p; sleep(10)){}
+}
+CREATE_TIMER(0, 50)
+{
+if (flag_recv==1)//если тут 1 - пришло сообщение
+{
+flag_recv=0;//обнулим
+text_edit0[0]=format(#recvs[0]);//запишем это сообщение в edit
+strcpy(#sends[0], text_edit0[1]);//заполним массив передачи текстом с второго edit
+sendport (#sends[0], size(#sends[0]));//отправим
+recvport (#recvs[0], 256, #flag_recv); //   опять слушаем
+}
+}
+клиент. о клиенте подробнее Отправки HTML запросов. Работа в интернете...
+Цитата:
+int pos_size_edit0[2][4];
+string text_edit0[2];
+int pos_size_static0[2][4];
+string text_static0[2];
+int pos_size_button0[1][4];
+string text_button0[1];
+int flag_button0[1];
+pos_size_button0[0][0]=16; pos_size_button0[0][1]=91; pos_size_button0[0][2]=313; pos_size_button0[0][3]=20;
+text_button0[0]="Послать на сервер";
+pos_size_edit0[0][0]=115; pos_size_edit0[0][1]=10; pos_size_edit0[0][2]=213; pos_size_edit0[0][3]=20;
+pos_size_edit0[1][0]=157; pos_size_edit0[1][1]=52; pos_size_edit0[1][2]=172; pos_size_edit0[1][3]=20;
+text_edit0[0]=""; text_edit0[1]="От клиента серверу пошлем";
+pos_size_static0[0][0]=16; pos_size_static0[0][1]=14; pos_size_static0[0][2]=95; pos_size_static0[0][3]=20;
+pos_size_static0[1][0]=17; pos_size_static0[1][1]=55; pos_size_static0[1][2]=110; pos_size_static0[1][3]=20;
+text_static0[0]="Получили в ответ"; text_static0[1]="Пошлем серверу";
+createdialog(0, BUTTON, #pos_size_button0[0][0], #text_button0[0], #flag_button0[0] |
+EDIT, #pos_size_edit0[0][0], #text_edit0[0] |
+STATIC, #pos_size_static0[0][0], #text_static0[0]);
+showdialog(0, "Клиент", 350, 200, 347, 152, 1, 1);
+char recvs[256];//массив в который принимаем
+char sends[256];//массив который передаем
+enabletimer(0);//включили таймер
+int n=0;
+loop()//цикл бота
+{
+textout(0, 50, 50, format(n), 0);
+n++;
+mu_pause  (500);
+}
+function mu_pause(int p)//реализация паузы что бы не зависал на время ее скрипт
+{
+for (int t=gettime(); gettime()-t<p; sleep(10)){}
+}
+CREATE_TIMER(0, 50)
+{
+if (flag_button0[0]>0)//если нажата кнопка
+{
+flag_button0[0]=0;//обнулим
+/* Если на одном компьютере указать 127.0.0.1
+если одна подсеть узнать ip запустив пуск выполнить cmd /k ipconfig /all
+если интернеи и выделенный ip у сервака писать его ip*/
+if (opensocket ("127.0.0.1", 10005)==1)//откроем сокет на 10005 порту сервера (самому выбирать)
+{
+strcpy(#sends[0], text_edit0[1]);//заполним массив передачи текстом с второго edit
+if (sendhtml(#sends[0], size(#sends[0]))>0)//Если отправили
+{
+if (recvhtml(#recvs[0], 256)>0) text_edit0[0]=format(#recvs[0]);//когда примем ответ  запишем ответ в edit
+}
+closesocket ();//Закрываем сокет
+}
+}
+}

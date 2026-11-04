@@ -1,0 +1,137 @@
+﻿НАЗВАНИЕ: __python
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=149
+
+Многопроцессорность Python. Запуск нескольких процессов Python, работающих одновременно и незавивисимо друг от друга
+Ознакомиться с оператором kiborcode. Оператор kiborcode позволяет встраивать исполняемый код Кибор непосредственно в код Python в блоках __python_sync и __python
+В этой версии появились директивы
+__python, __python_sync и __end_python
+С их помощью можно писать и выполнять чистые Питон скрипты непосредственно в самом коде Кибор, параллельно с его выполнением.
+В этих блоках допускаются любые скрипты, функции, вызов функций Питона.
+Выполнение блоков в Питоне начавшихся с __python идет не синхронно с выполнением кода Кибор.
+Для синхроннгого выполнения надо использовать директиву __python_sync
+При выполнение Питоном инструкции input, выводится диалоговое окно.
+Пример:
+CODE:
+enableconsolepython(1, 1, 50, 50, 800, 200);
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+__python_sync
+a = 5
+b = 10
+c = 1
+if a > b:
+(4 пробела)s='A  больше B'
+else:
+(4 пробела)s='B  больше или равно A'
+__end_python
+messagebox (sendgetpython("print (s)"));
+__python_sync
+if c == 0:
+(4 пробела)s='c  равно 0'
+else:
+(4 пробела)s='c  не равно 0'
+__end_python
+messagebox (sendgetpython("print (s)"));
+closepython();
+er:;
+disableconsolepython();
+Асинхронное выполнение:
+CODE:
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+__python
+import time
+time.sleep(5)
+__end_python
+messagebox ("Верхний скрипт Питона выполняется. Он должен сделать паузу 5 секунд.^nНо скрипт Кибор ее не будет ждать.");
+closepython();
+er:;
+Синхронное выполнение:
+CODE:
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+__python_sync
+import time
+time.sleep(5)
+__end_python
+messagebox ("Ждали паузу 5 секунд.");
+closepython();
+er:;
+Загрузка функции Питона и ее использование в Кибор по необходимости. Не забываем про правила отступа. Пустая строка = нажатию Ентер
+Цитата:
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+//Загружаем функцию Питона
+__python_sync
+import difflib
+def similarity(s1, s2):
+(отступ) normalized1 = s1.lower()
+(отступ) normalized2 = s2.lower()
+(отступ) matcher = difflib.SequenceMatcher(None, normalized1, normalized2)
+(отступ) return matcher.ratio()
+__end_python
+sleep(100);
+//Вызываем когда понадобится с параметрами
+messagebox (sendgetpython("similarity(^'мыло^', ^'мало^')"));//0.75
+closepython();
+er:;
+Цитата:
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+load_fen_python();//Загружаем все функции Питона
+sleep(100);
+//Вызываем когда понадобится с параметрами
+messagebox (sendgetpython("similarity('мыло', 'мало')"));//0.75
+closepython();
+er:;
+//Загружаем все функции Питона
+function load_fen_python()
+{
+__python
+import difflib
+def similarity(s1, s2):
+(отступ) normalized1 = s1.lower()
+(отступ) normalized2 = s2.lower()
+(отступ) matcher = difflib.SequenceMatcher(None, normalized1, normalized2)
+(отступ) return matcher.ratio()
+__end_python
+}
+------------------------------------------------------------------------------------
+На блоки Питон скриптов в __python и __end_python не распространяется форматирование блоков.
+Можно так писать
+CODE:
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+__python print('qwert')__end_python
+sleep(100);
+messagebox (getpython());
+closepython();
+er:;
+Как передать в функцию Питона большой объем данных и получить ответ после того как она что то с ними сделает
+CODE:
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+load_fen_python();//Загружаем все функции Питона
+sleep(100);
+string ss="";
+for(int a=0; a<1000; a++)ss=ss+format(rand(0, 250))+",";
+ss=ss+"]";
+messagebox("Сейчас вызовем функцию Python и передадим ему 1000 чисел и получим ответ.");
+//Вызываем когда понадобится с параметрами
+// my_function([1, 2, 3, 4, 5])
+messagebox (sendgetpython("my_function(["+ss+")"));
+closepython();
+er:;
+//Загружаем все функции Питона
+function load_fen_python()
+{
+//Тут что то полезное делаем в питоне с этими числами
+__python
+def my_function(some_list):
+(отступ) print(some_list[257]+some_list[22])  #Сложим 2 числа и вернем результат
+__end_python
+}
+MessageBox python
+CODE:
+enableconsolepython(1, 1, 50, 50, 800, 200);
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+__python_sync
+import ctypes
+MessageBox = ctypes.windll.user32.MessageBoxW
+MessageBox(None, 'Hello', 'Window title', 0)
+__end_python
+er:;
+disableconsolepython();

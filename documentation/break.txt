@@ -1,0 +1,73 @@
+﻿НАЗВАНИЕ: break
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=113
+
+Добавлен оператор break
+Его назначение прерывать циклы loop, looptime, while и for
+Оператор break прерывает цикл в теле которого он находится, передавая управление на строку находящуюся непосредственно после прерванного цикла.
+Примеры и пояснения
+Применение break в
+CODE:
+loop()
+{
+break;
+}
+равносильно
+CODE:
+loop()
+{
+goto a;
+}
+a:;
+Применение break в
+CODE:
+while(1==1)
+{
+break;
+loop()
+{
+break;
+}
+}
+равносильно
+CODE:
+while(1==1)
+{
+goto b;
+loop()
+{
+goto a;
+}
+a:;
+}
+b:;
+Применение break в
+CODE:
+for (int n=0; n<5; n++)
+{
+while(1==1)
+{
+break;
+loop()
+{
+break;
+}
+}
+if (n==2) break;
+}
+равносильно
+CODE:
+for (int n=0; n<5; n++)
+{
+while(1==1)
+{
+goto b;
+loop()
+{
+goto a;
+}
+a:;
+}
+b:;
+if (n==2) goto c;
+}
+c:;

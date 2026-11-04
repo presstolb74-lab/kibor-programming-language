@@ -1,0 +1,66 @@
+﻿НАЗВАНИЕ: findprocess
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=164
+
+findprocess
+Ищет процесс по его имени.
+Возвращает его PID или -1 если процесс не найден.
+Синтаксис:
+CODE:
+int PID=findprocess("notepad.exe");
+messagebox(PID);
+======================
+listprocess
+Получает список всех процессов.
+В виде параметров принимает:
+1 - указатель на массив string, в который запишутся имена процессов.
+2 - указатель на массив int, в который запишутся их PIDы
+Возвращает количество найденных процессов или -1 если какой то массив меньше чем количество.
+Пример:
+CODE:
+string Name[1000];
+int Pid[1000];
+int k=listprocess (#Name[0], #Pid[0]);
+for (int n=0; n<k; n++)
+{
+if (Name[n]=="notepad.exe") {messagebox (Pid[n]); break;}
+}
+=======================
+PID может применяться в функции openprocess для открытия его для чтения/записи в память и тд.
+==================================
+Пример как убить процесс:
+CODE:
+external(INT, "TerminateProcess", "TerminateProcess", "Kernel32.dll");
+int Pid=findprocess("notepad.exe");
+if (Pid>-1)
+{
+TerminateProcess(openprocess(Pid), 9);
+}
+--------------------------------------
+Получение PID процесса по указателю на окно.
+CODE:
+external(INT, "GetWindowThreadProcessId", "GetWindowThreadProcessId", "User32.dll");
+win w=window (-1, "MozillaWindowClass", -1);
+int Hwnd=formatwi(w);
+int pid=0;
+GetWindowThreadProcessId(Hwnd, address(#pid));
+messagebox (pid);
+-----------------------------------------
+Получение списка всех окон процесса, по указателю на любое открытое окно этим процессом или на любой контрол.
+Пример получения указателей на окна блокнота с указателя на открытое дочерное окно "Заменить".
+CODE:
+external(INT, "GetWindowThreadProcessId", "GetWindowThreadProcessId", "User32.dll");
+win t=window ("Заменить", "#32770", -1);
+if (t)
+{
+int pid=0;
+if(GetWindowThreadProcessId(formatwi(t), address(#pid)))
+{
+win w[100];
+int k=listwinprocess(#w[0], pid);
+for (int n=0; n<k; n++)
+{
+setwindowparam (w[n]);
+messagebox (w.name[n]+" - "+w.class[n]+" -- "+format(w.left[n])+" - "+format(w.widthclient[n]));
+}
+}
+}

@@ -1,0 +1,9 @@
+﻿НАЗВАНИЕ: ansitoutf8
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=176
+
+ansitoutf8 конвертирует ANSI в UTF-8.
+Синтаксис
+Цитата:
+string A=ansitoutf8("Текст в ANSI");
+В виде параметра принимает текст в ANSI
+Возвращает текст в UTF-8

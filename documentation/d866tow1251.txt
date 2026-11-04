@@ -1,0 +1,31 @@
+﻿НАЗВАНИЕ: d866tow1251
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=158
+
+d866tow1251 перекодирует текст из DOS 866 в WINDOWS 1251
+CODE:
+string V=d866tow1251 ("Text DOS-866 ‚®в нв®в вҐЄбв");
+messagebox (V);
+В виде параметра принимает текст в котором есть кодировка DOS 866
+Возвращает текст в котором DOS 866 перекодировано в WINDOWS 1251
+w1251tod866 перекодирует текст из WINDOWS 1251 в DOS 866
+CODE:
+string V=d866tow1251 ("Text DOS-866 ‚®в нв®в вҐЄбв");
+messagebox (V);
+V=w1251tod866 (V);
+messagebox (V);
+Пример
+CODE:
+if (createpipeprocess("C:\Windows\System32\cmd.exe -i"))
+{
+int C;
+string S;
+sendpipe("help^n");//Отправляем команду help
+waitpipe();//Ждем пока отработает и появятся данные
+sleep(500);//для надежности
+C=getpipe(#S);//Читаем
+//messagebox (C);
+messagebox (S);
+S=d866tow1251 (S);//перекодирует текст из DOS 866 в WINDOWS 1251
+messagebox (S);
+closepipeprocess();//Завершим процесс и закрываем канал
+}

@@ -1,0 +1,19 @@
+﻿НАЗВАНИЕ: __python_sync
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=149&postid=1598806909#1598806909
+
+Многопроцессорность Python. Запуск нескольких процессов Python, работающих одновременно и незавивисимо друг от друга
+Добавил директиву __python_sync
+С ее помощью можно организовывать синхронное выполнение скриптов.
+Однако если требуется считать результат работы скрипта, то необходимо вызывать для этого отдельную функцию sendgetpython
+CODE:
+if (runpython()==0){messagebox ("Не удалось запустить Python"); goto er;}
+__python_sync
+import time
+a=1
+time.sleep(5)
+a=a+2
+__end_python
+messagebox (sendgetpython("print(a)"));
+closepython();
+er:;
+ivantu

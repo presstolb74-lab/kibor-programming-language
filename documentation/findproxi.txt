@@ -1,0 +1,922 @@
+﻿НАЗВАНИЕ: findproxi
+ИСТОЧНИК: https://kibor-bot.com/forum/topic.php?forum=1&topic=185
+
+findproxi - Бесплатный Прокси Чекер. Работает через сервис Кибор.
+Полученные прокси проходят полную проверку  на работоспособность..
+findproxi  позволяет быстро найти рабочий бесплатный прокси.
+======================
+В расширенном варианте идет проверка на сервере kibor-bot.com и дополнительная проверка прокси на вашем компьютере и  может получить код страницы нужного сайта, открытого через найденный прокси для анализа.
+К примеру если мы укажем в параметрах что ориентироваться будем на google.com, то при получение кода страницы, просмотрев его через регулярные выражения мы можем удостоверится что данный прокси нам подходит для работы с Гугл, если в тексте отсутствуют фразы "CAPCHA" и другие подобные, которые указывают что данный прокси в Гугле забанен.
+Если не указывать адрес сайта по которому будем проверять прокси, то проверка будет идти через kibor-bot.com. В ответе мы получим IP, который видят сайты.
+Синтаксис:
+CODE:
+string Text_Pade;
+string PROXI;
+int N=0;
+N=findproxi(N, #PROXI, "https:/^/www.google.com.ua", "search?source=hp&q=кибор", #Text_Pade, "");
+//N=findproxi(N, #PROXI, "", "", #Text_Pade, "");
+//N=findproxi(N, #PROXI, "https:/^/kibor-bot.com", "forum/index.php", #Text_Pade, "windows-1251");
+messagebox (PROXI);
+Первый параметр - Номер проверяемого прокси. Обычно начинается с 0
+Второй - Указатель на string, в который запишется найденный прокси в формате "111.222.333.444:80"
+Третий - Домен, по которому будем проверять. Может быть пустым. Если не указан - проверяем по kibor-bot.com
+Четвертый - Страница сайта. Может быть пустым.
+Пятый - Указатель на string, в который запишется полученный код страницы для анализа.
+Шестой - Указываем кодировку сайта. Если пустой, идет по умолчанию UTF8. Если ожидается windows-1251 надо указать "windows-1251" в таком регистре.
+Для того что бы начать поиск с начала после того как не нашли прокси, необходимо обнулить переменную N
+=====================================
+Пример как будет найдено 5 прокси и с каждым будет выведен код страницы гугла
+CODE:
+string Text_Pade;
+string PROXI;
+int N=0;
+loop(5)
+{
+N=findproxi(N, #PROXI, "https:/^/www.google.com.ua", "search?source=hp&q=кибор", #Text_Pade, "");
+messagebox (PROXI+Text_Pade);
+}
+В коротком варианте мы получаем прокси после проверки на сервере kibor-bot.com
+Проверка на вашем компьютере не производится
+CODE:
+string PROXI;
+int N=0;
+N=findproxi(N, #PROXI);
+messagebox (PROXI);
+=====================================
+Возвращает следующий порядковый номер списка проверяемых прокси.
+Для начала поиска следующего прокси необходимо начинать с данного номера.
+0 возвращает если прокси не найден.
+-1 при ошибке.
+====================================
+Как в длинном, так и в коротком вариантах возможно указать не обязательный последний параметр типа string, в котором можно указать коды стран, прокси которых надо получить.
+Пример:
+CODE:
+string PROXI;
+int N=0;
+N=findproxi(N, #PROXI, "DE | US");
+CODE:
+string Text_Pade;
+string PROXI;
+int N=0;
+N=findproxi(N, #PROXI, "https:/^/www.google.com.ua", "search?source=hp&q=кибор", #Text_Pade, "", "DE | US");
+Если данный параметр не указать или оставить пустым, будет найден прокси любой страны.
+Коды стран:(для просмотра ссылки Вам необходимо авторизоваться) Столбец A2
+====================================
+Пример:
+CODE:
+string PROXI;
+int N=0;
+A:;
+N=findproxi(N, #PROXI);
+if (N>0)
+{
+//Тут что то делаем с проси и выходим если закончили работу. Или берем следующий прокси.
+if (fopen ("C:\free_proxi.txt", "w")!=0)
+{
+fwrite(format(N-1)+"^r^n"+PROXI+"^r^n");
+fclose();
+}
+start("C:\free_proxi.txt");
+messagebox ("Найден рабочий проки "+PROXI);
+goto A;
+}
+CODE:
+string Text_Pade;
+string PROXI;
+int N=0;
+A:;
+N=findproxi(N, #PROXI, "https:/^/www.google.com.ua", "search?source=hp&q=кибор", #Text_Pade, "");
+//N=findproxi(N, #PROXI, "", "", #Text_Pade, "");
+//N=findproxi(N, #PROXI, "https:/^/kibor-bot.com", "forum/index.php", #Text_Pade, "windows-1251");
+if (N>0)
+{
+//Тут что то делаем с проси и выходим если закончили работу. Или берем следующий прокси.
+if (fopen ("C:\free_proxi.txt", "w")!=0)
+{
+fwrite(format(N-1)+"^r^n"+PROXI+"^r^n"+Text_Pade);
+fclose();
+}
+start("C:\free_proxi.txt");
+messagebox ("Найден рабочий проки "+PROXI);
+goto A;
+}
+Если прокси не найден или нужны дополнительные прокси, необходимо запустить данный скрипт для пополнения базы. После этого вызвать функцию findproxi
+Скрипт для Поиска и пополнение базы прокси. (Отобразить)
+CODE:
+//Список найденных прокси сохраняется в C:\ALL_proxi.txt
+int RS=0;// 0 - работать без вопросов о продолжение пока не остановишь. 1 - спрашивать когда нашел
+int TimeAute=7000;
+int t_TimeAute=TimeAute;
+string PROXI[1000];
+int KML=0;
+int PR[50];
+string t;
+initialarray(#PR[0], 1);
+//Для отключения не нужного сайта
+/*
+PR[1]=0;//hidemy.name
+PR[2]=0;//spys.one
+PR[4]=0;//free-proxy-list.net
+PR[5]=0;//advanced.name
+PR[6]=0;//us-proxy.org
+PR[8]=0;//sslproxies.org
+*/
+PR[0]=0;//api.foxtools.ru
+PR[11]=0;//proxyscan.io
+PR[10]=0;//proxyhub.me
+PR[9]=0;//xseo.in
+PR[7]=0;//socks-proxy.net
+PR[3]=0;//my-proxy.com
+PR[12]=0;//proxyhub.me
+/*
+//Проверка прокси на анонимность
+string Tet;
+if (sendgetweb("177.234.196.187:999", #Tet, "", "GET", "http:/^/httpbin.org", "ip"))
+{
+if (Tet!="")
+{
+parserjson(Rez_Json, Tet);
+messagebox (Rez_Json.origin);
+}
+}
+//Проверка прокси на анонимность Финиш
+*/
+string Combo=getcontrol(COMBO_0);
+int pos_size_edit0[1][4];
+string text_edit0[1];
+pos_size_edit0[0][0]=10; pos_size_edit0[0][1]=9; pos_size_edit0[0][2]=221; pos_size_edit0[0][3]=20;
+text_edit0[0]="Парсинг прокси...";
+createdialog(0, EDIT, #pos_size_edit0[0][0], #text_edit0[0]);
+showdialog(0, "Поиск прокси", 200, 200, 250, 70, 1, 1);
+//////////
+//Для получения кода страницы для анализа
+if (Combo=="Открытие сайта для анализа")//1 - Задействовать 0 - Пропустить
+{
+string Domain=getcontrol(EDIT_0);
+string Pade=getcontrol(EDIT_1);
+string V;
+if (sendgetweb(#V, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/"+Domain, Pade))
+{
+V=utf8toansi(V);
+if (fopen (tempfolder()+"proxi1.txt", "w")!=0)
+{//если открылся
+fwrite(V);
+fclose();//закрываем файл
+}
+start(tempfolder()+"proxi1.txt");
+}
+goto er;
+}
+//Для получения кода страницы для анализа Финиш
+//Для проверки прокси с листа C:\ALL_proxi.txt
+if (Combo=="Проверка найденных прокси")//1 - Задействовать 0 - Пропустить
+{
+sendtext("Проверка прокси с C:\ALL_proxi.txt", formatiw(gethwnd(0)));
+if (fopen ("C:\ALL_proxi.txt", "r")!=0)
+{
+while(fread(PROXI[KML]))
+{
+if (regexsearch(1, #t, PROXI[KML], ":")) KML++;
+}
+fclose();//закрываем файл
+}
+string Te;
+for (int i=0; i<KML; i++)
+{
+text_edit0[0]=PROXI[i];
+sleep(100);
+if (sendgetweb(PROXI[i], #Te, "", "GET", "https:/^/kibor-bot.com", "", 7000))
+{
+if (Te!="")
+{
+//Te=utf8toansi(Te);
+if (fopen (tempfolder()+"proxi2.txt", "w")!=0)
+{//если открылся
+fwrite("Живой прокси "+PROXI[i]+"^r^n"+Te);
+fclose();//закрываем файл
+}
+start(tempfolder()+"proxi2.txt");
+//messagebox ("Живой прокси "+PROXI[i]+"^r^n"+Te);
+}
+}
+}
+KML=0;
+goto er;
+}
+//Для проверки прокси с листа C:\ALL_proxi.txt Финиш
+if (messageboxyn("Очистить файл^r^nC:\ALL_proxi.txt^r^nс прокси?")==1)
+{
+if (fopen ("C:\ALL_proxi.txt", "w")!=0)fclose();//закрываем файл
+}
+else
+{
+if (fopen ("C:\ALL_proxi.txt", "r")!=0)
+{
+while(fread(PROXI[KML]))
+{
+if (regexsearch(1, #t, PROXI[KML], ":")) KML++;
+}
+fclose();//закрываем файл
+}
+}
+int pr=1;
+loop()
+{
+find_proxi();
+pr=0;
+}
+loop()sleep(10);
+er:;
+function Save_Proxi(string P, string S, string T)
+{
+for (int n=0; n<KML; n++)
+{
+if (P==PROXI[n]) return;
+}
+PROXI[KML]=P;
+KML++;
+if (fopen ("C:\ALL_proxi.txt", "a")!=0)
+{//если открылся
+fwrite(P);fwrite(" ");fwrite(S);fwrite (ENDL);
+fclose();//закрываем файл
+}
+if (fopen (tempfolder()+"proxi.txt", "w")!=0)
+{//если открылся
+fwrite("Рабочий прокси "+P+" "+S+"^r^n"+T);
+fclose();//закрываем файл
+}
+start(tempfolder()+"proxi.txt");
+}
+function ping(string IP)
+{
+if (regexsearch(1, #IP, IP, "(.*)+(?=:)"))
+{
+if (createpipeprocess("C:\Windows\System32\cmd.exe -i"))
+{
+sendpipe("ping -n 1 "+IP+"^n");//Устанавливаем кодировку windows 1251 для русс шрифта
+waitpipe();//Ждем пока отработает и появятся данные
+sleep(500);//для надежности
+string S;
+getpipe(#S);//Читаем
+//S=d866tow1251 (S);//перекодирует текст из DOS 866 в WINDOWS 1251
+if (regexsearch(1, #S, S, "TTL="))
+{
+closepipeprocess();//Завершим процесс и закрываем канал
+return 1;
+}
+closepipeprocess();//Завершим процесс и закрываем канал
+return 0;
+}
+}
+return 0;
+}
+function find_proxi()
+{
+string T;
+int limit=100;
+int pl;
+int page=1;
+int K;
+string Proxi[1000], Port[1000], Site[1000];
+int n;
+char APP[100];
+char BPP[100];
+if (PR[0])
+{
+limit=20;
+sendtext("api.foxtools.ru", formatiw(gethwnd(0)));
+loop()
+{
+T="";
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "http:/^/api.foxtools.ru", "v2/Proxy?limit="+format(limit)+"&page="+format(page)))
+{
+T=utf8toansi(T);
+//messagebox (T);
+text_edit0[0]="Парсинг прокси...";
+if (parserjson(Json, T)>0)
+{
+for(int i=0; i<limit; i++)
+{
+string ip = Json.response.items[i].ip;
+string port = Json.response.items[i].port;
+if(ip == "ERROR_SEARCH_JSON")
+{
+goto D;
+}
+text_edit0[0]=ip+":"+port+"^t"+Json.response.items[i].country.nameRu;
+sleep(100);
+if (ping(ip+":"+port))
+{
+if (sendgetweb(ip+":"+port, #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+ip+":"+port, t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(ip+":"+port, "api.foxtools.ru", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+}
+else
+{
+goto D;
+}
+if (pr==1)goto D;
+page++;
+}
+D:;
+}
+///////////////////////
+if (PR[1])
+{
+limit=320;
+pl=0;
+sendtext("hidemy.name", formatiw(gethwnd(0)));
+loop()
+{
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/hidemy.name", "ru/proxy-list/?start="+format(pl*64)+"#list"))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"Последнее обновление", "<li class=next_array>");
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D1;
+}
+parserstart(T);
+K=0;
+loop()
+{
+if (parser(500, "<tr><td>", #Proxi[K], 17, "</td>")==0) break;
+if (parser(15, "<td>", #Port[K], 7, "</td>")==0) break;
+if (parser(100, "<span class=country>", #Site[K], 70, "</span>")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D1;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n]+"^t"+Site[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "hidemy.name", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+if (pr==1)goto D1;
+pl=pl+64;
+if (pl>limit)goto D1;
+//break;
+}
+///////////////////////
+D1:;
+}
+if (PR[2])
+{
+sendtext("spys.one", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/spys.one", ""))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"Дата проверки", "spy6>IP адрес и порт");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D2;
+}
+parserstart(T);
+K=0;
+loop()
+{
+if (parser(1000, "^'^"><td colspan=1><font class=spy14>", #Proxi[K], 27, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D2;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n];
+sleep(100);
+if (ping(Proxi[n]))
+{
+if (sendgetweb(Proxi[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n], "spys.one", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D2:;
+}
+if (PR[3] && pr==1)
+{
+t_TimeAute=1000;
+sendtext("my-proxy.com", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/my-proxy.com", "free-proxy-list.html"))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"class=^"list^">", "<div class=^"list-bottom^">");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D3;
+}
+parserstart(T);
+K=0;
+loop()
+{
+if (parser(50, ">", #Proxi[K], 27, "#")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D3;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n];
+sleep(100);
+if (ping(Proxi[n]))
+{
+if (sendgetweb(Proxi[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n], "my-proxy.com", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D3:;
+t_TimeAute=TimeAute;
+}
+if (PR[4])
+{
+sendtext("free-proxy-list.net", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/free-proxy-list.net", ""))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"<div class=^"table-responsive fpl-list^">", "Free proxies from free-proxy-list.net");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D4;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(500, "><tr><td>", #Proxi[K], 17, "<")==0) break;
+if (parser(20, "<td>", #Port[K], 12, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D4;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "free-proxy-list.net", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D4:;
+}
+if (PR[5])
+{
+sendtext("advanced.name", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/advanced.name", "freeproxy"))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"<tbody>", "</tbody>");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D5;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "<td data-ip=^"", #Proxi[K], 40, "^"")==0) break;
+if (parser(150, "<td data-port=^"", #Port[K], 20, "^"")==0) break;
+strcpy(#APP[0], Proxi[K]);
+base64decode (#APP[0], size(#APP[0]), #BPP[0]);
+Proxi[K]=format(#BPP[0]);
+strcpy(#APP[0], Port[K]);
+base64decode (#APP[0], size(#APP[0]), #BPP[0]);
+Port[K]=format(#BPP[0]);
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D5;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "advanced.name", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D5:;
+}
+if (PR[6])
+{
+sendtext("us-proxy.org", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/us-proxy.org", ""))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"<div class=^"table-responsive fpl-list^">", "Free proxies from");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D6;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "><tr><td>", #Proxi[K], 20, "<")==0) break;
+if (parser(20, "</td><td>", #Port[K], 10, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D6;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "us-proxy.org", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D6:;
+}
+if (PR[7])
+{
+sendtext("socks-proxy.net", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/socks-proxy.net", ""))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"Port</th><th>Code", ">Free socks proxies from");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D7;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "><tr><td>", #Proxi[K], 20, "<")==0) break;
+if (parser(20, "</td><td>", #Port[K], 10, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D7;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "socks-proxy.net", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D7:;
+}
+if (PR[8])
+{
+sendtext("sslproxies.org", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/sslproxies.org", ""))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"table-responsive fpl-list", ">Free proxies from");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D8;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "><tr><td>", #Proxi[K], 20, "<")==0) break;
+if (parser(20, "</td><td>", #Port[K], 10, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D8;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "sslproxies.org", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D8:;
+}
+if (PR[9])
+{
+sendtext("xseo.in", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/xseo.in", "freeproxy"))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"IP адрес и порт прокси", "/freeproxy^" method=pos");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D9;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "1><td colspan=1><font class=cls1>", "8><td colspan=1><font class=cls1>", #Proxi[K], 20, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D9;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n];
+sleep(100);
+if (ping(Proxi[n]))
+{
+if (sendgetweb(Proxi[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n], "xseo.in", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D9:;
+}
+if (PR[10])
+{
+sendtext("proxyhub.me", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/proxyhub.me", "ru/ua-free-proxy-list.html"))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"col^">город</th>", "</tbody>");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D10;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "><tr><td>", #Proxi[K], 20, "<")==0) break;
+if (parser(20, "</td><td>", #Port[K], 10, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D10;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "proxyhub.me", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D10:;
+}
+if (PR[11])
+{
+sendtext("proxyscan.io", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/proxyscan.io", ""))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,"<tbody id=^"loadPage^">", "</tbody>");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D11;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "<th scope=^"row^">", #Proxi[K], 20, "<")==0) break;
+if (parser(20, " <td>", #Port[K], 10, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D11;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "proxyscan.io", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D11:;
+}
+if (PR[12])
+{
+sendtext("proxyhub.me", formatiw(gethwnd(0)));
+if (sendgetweb(#T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/proxyhub.me", ""))
+{
+T=utf8toansi(T);
+//messagebox (T);
+T=cuttext(T,">City<", "</tbody>");
+//messagebox (T);
+if (T=="")
+{
+//messagebox("Прокси не найден");
+goto D12;
+}
+parserstart(T);
+K=0;
+loop(20)
+{
+if (parser(1000, "><tr><td>", #Proxi[K], 20, "<")==0) break;
+if (parser(20, "</td><td>", #Port[K], 10, "<")==0) break;
+K++;
+}
+if (K==0)
+{
+//messagebox("Прокси не найден");
+goto D12;
+}
+for (n=0; n<K; n++)
+{
+text_edit0[0]=Proxi[n]+":"+Port[n];
+sleep(100);
+if (ping(Proxi[n]+":"+Port[n]))
+{
+if (sendgetweb(Proxi[n]+":"+Port[n], #T, "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0", "GET", "https:/^/kibor-bot.com", "proxi/prov_proxi.php?p="+Proxi[n]+":"+Port[n], t_TimeAute))
+{
+if (T!="")
+{
+Save_Proxi(Proxi[n]+":"+Port[n], "proxyhub.me", T);
+if (RS){if (messageboxyn("Прокси найден.^r^nДа - Закончить поиск^r^nНет - Продолжить поиск")==1)goto global er;}
+}
+}
+}
+}
+}
+///////////////////////
+D12:;
+}
+}
+CREATE_INTERFACE
+{
+DIALOG "Прокси Чекер" 237 180 //РазмерX РазмерY
+BUTTONSCRIPT "Запустить" 125 121 100 25 //ПозицияX ПозицияY РазмерX РазмерY
+//Добавление контролов управления ......
+COMBO_0 0 "Поиск прокси" | "Проверка найденных прокси" | "Открытие сайта для анализа" 10 10 215 200 //ПозицияX ПозицияY РазмерX РазмерY_выпадающий список
+STATIC_2 "Открыть для анализа сайт:" 10 40 190 18 //ПозицияX ПозицияY РазмерX РазмерY
+STATIC_0 "Домен" 10 60 90 18 //ПозицияX ПозицияY РазмерX РазмерY
+EDIT_0 "my-proxy.com" 70 58 155 18 //ПозицияX ПозицияY РазмерX РазмерY
+STATIC_1 "Страница" 10 80 90 18 //ПозицияX ПозицияY РазмерX РазмерY
+EDIT_1 "free-proxy-list.html" 70 78 155 18 //ПозицияX ПозицияY РазмерX РазмерY
+}
